@@ -1,103 +1,143 @@
-import Image from "next/image";
+'use client'
 
-export default function Home() {
+import { useAppStore } from '@/store/useAppStore'
+import { Plus, Minus, RotateCcw, Heart } from 'lucide-react'
+
+export default function HomePage() {
+  const { 
+    count, 
+    name, 
+    theme, 
+    increment, 
+    decrement, 
+    reset, 
+    setName, 
+    toggleTheme 
+  } = useAppStore()
+
+  const isDark = theme === 'dark'
+
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <div className={`min-h-screen transition-colors duration-300 ${
+      isDark 
+        ? 'bg-gray-900 text-white' 
+        : 'bg-gradient-to-br from-blue-50 to-indigo-100 text-gray-900'
+    }`}>
+      <div className="container mx-auto px-4 py-16">
+        {/* Header */}
+        <div className="text-center mb-12">
+          <h1 className="text-6xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            Hello, {name}! 
+          </h1>
+          <p className="text-xl opacity-70 mb-8">
+            Welcome to your Next.js app with Zustand state management
+          </p>
+          
+          {/* Theme Toggle */}
+          <button
+            onClick={toggleTheme}
+            className={`px-6 py-2 rounded-full font-medium transition-all duration-300 ${
+              isDark
+                ? 'bg-yellow-500 text-gray-900 hover:bg-yellow-400'
+                : 'bg-gray-800 text-white hover:bg-gray-700'
+            }`}
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+            {isDark ? '☀️ Light Mode' : '🌙 Dark Mode'}
+          </button>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
+
+        {/* Name Input */}
+        <div className="max-w-md mx-auto mb-12">
+          <label className="block text-sm font-medium mb-2 opacity-70">
+            Change your name:
+          </label>
+          <input
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Enter your name"
+            className={`w-full px-4 py-3 rounded-lg border transition-colors duration-300 ${
+              isDark
+                ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400 focus:border-blue-500'
+                : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:border-blue-500'
+            } focus:outline-none focus:ring-2 focus:ring-blue-500/20`}
           />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+        </div>
+
+        {/* Counter Section */}
+        <div className={`max-w-md mx-auto rounded-2xl p-8 shadow-xl transition-colors duration-300 ${
+          isDark 
+            ? 'bg-gray-800 shadow-gray-900/50' 
+            : 'bg-white shadow-gray-300/50'
+        }`}>
+          <div className="text-center mb-8">
+            <h2 className="text-2xl font-semibold mb-4 flex items-center justify-center gap-2">
+              <Heart className="text-red-500" size={24} />
+              Counter Demo
+            </h2>
+            <div className="text-6xl font-bold text-blue-600 mb-4">
+              {count}
+            </div>
+            <p className="opacity-70">
+              This counter state is managed by Zustand
+            </p>
+          </div>
+
+          {/* Counter Controls */}
+          <div className="flex gap-3 justify-center mb-6">
+            <button
+              onClick={decrement}
+              className={`p-3 rounded-xl font-medium transition-all duration-300 hover:scale-105 ${
+                isDark
+                  ? 'bg-red-600 hover:bg-red-700 text-white'
+                  : 'bg-red-500 hover:bg-red-600 text-white'
+              } shadow-lg`}
+            >
+              <Minus size={20} />
+            </button>
+            
+            <button
+              onClick={increment}
+              className={`p-3 rounded-xl font-medium transition-all duration-300 hover:scale-105 ${
+                isDark
+                  ? 'bg-green-600 hover:bg-green-700 text-white'
+                  : 'bg-green-500 hover:bg-green-600 text-white'
+              } shadow-lg`}
+            >
+              <Plus size={20} />
+            </button>
+            
+            <button
+              onClick={reset}
+              className={`p-3 rounded-xl font-medium transition-all duration-300 hover:scale-105 ${
+                isDark
+                  ? 'bg-gray-600 hover:bg-gray-700 text-white'
+                  : 'bg-gray-500 hover:bg-gray-600 text-white'
+              } shadow-lg`}
+            >
+              <RotateCcw size={20} />
+            </button>
+          </div>
+
+          {/* Status */}
+          <div className="text-center">
+            <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+              count > 0 
+                ? 'bg-green-100 text-green-800' 
+                : count < 0 
+                ? 'bg-red-100 text-red-800'
+                : 'bg-gray-100 text-gray-800'
+            }`}>
+              {count > 0 ? 'Positive' : count < 0 ? 'Negative' : 'Zero'}
+            </span>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="text-center mt-12 opacity-60">
+          <p>Built with Next.js, Zustand, Tailwind CSS & Lucide Icons</p>
+        </div>
+      </div>
     </div>
-  );
+  )
 }
