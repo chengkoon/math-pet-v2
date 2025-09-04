@@ -1,15 +1,25 @@
 @import "tailwindcss";
 
+@theme {
+  --default-transition-duration: 300ms;
+  --default-font-family: var(--font-geist-sans);
+  --default-mono-font-family: var(--font-geist-mono);
+}
+
+@variant dark (&:is(.dark *));
+
+/* Custom app background utilities */
+.app-bg {
+  background: linear-gradient(to bottom right, #eff6ff, #e0e7ff);
+}
+
+.dark .app-bg {
+  background: #111827;
+}
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
 }
 
 @media (prefers-color-scheme: dark) {

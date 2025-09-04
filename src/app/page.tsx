@@ -15,14 +15,8 @@ export default function HomePage() {
     toggleTheme 
   } = useAppStore()
 
-  const isDark = theme === 'dark'
-
   return (
-    <div className={`min-h-screen transition-colors duration-300 ${
-      isDark 
-        ? 'bg-gray-900 text-white' 
-        : 'bg-gradient-to-br from-blue-50 to-indigo-100 text-gray-900'
-    }`}>
+    <div className="min-h-screen transition-colors duration-300 text-gray-900 dark:text-white app-bg">
       <div className="container mx-auto px-4 py-16">
         {/* Header */}
         <div className="text-center mb-12">
@@ -36,13 +30,9 @@ export default function HomePage() {
           {/* Theme Toggle */}
           <button
             onClick={toggleTheme}
-            className={`px-6 py-2 rounded-full font-medium transition-all duration-300 ${
-              isDark
-                ? 'bg-yellow-500 text-gray-900 hover:bg-yellow-400'
-                : 'bg-gray-800 text-white hover:bg-gray-700'
-            }`}
+            className="px-6 py-2 rounded-full font-medium transition-all duration-300 bg-gray-800 text-white hover:bg-gray-700 dark:bg-yellow-500 dark:text-gray-900 dark:hover:bg-yellow-400"
           >
-            {isDark ? '☀️ Light Mode' : '🌙 Dark Mode'}
+            {theme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode'}
           </button>
         </div>
 
@@ -56,20 +46,12 @@ export default function HomePage() {
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Enter your name"
-            className={`w-full px-4 py-3 rounded-lg border transition-colors duration-300 ${
-              isDark
-                ? 'bg-gray-800 border-gray-600 text-white placeholder-gray-400 focus:border-blue-500'
-                : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:border-blue-500'
-            } focus:outline-none focus:ring-2 focus:ring-blue-500/20`}
+            className="w-full px-4 py-3 rounded-lg border transition-colors duration-300 bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
           />
         </div>
 
         {/* Counter Section */}
-        <div className={`max-w-md mx-auto rounded-2xl p-8 shadow-xl transition-colors duration-300 ${
-          isDark 
-            ? 'bg-gray-800 shadow-gray-900/50' 
-            : 'bg-white shadow-gray-300/50'
-        }`}>
+        <div className="max-w-md mx-auto rounded-2xl p-8 shadow-xl transition-colors duration-300 bg-white shadow-gray-300/50 dark:bg-gray-800 dark:shadow-gray-900/50">
           <div className="text-center mb-8">
             <h2 className="text-2xl font-semibold mb-4 flex items-center justify-center gap-2">
               <Heart className="text-red-500" size={24} />
@@ -87,33 +69,21 @@ export default function HomePage() {
           <div className="flex gap-3 justify-center mb-6">
             <button
               onClick={decrement}
-              className={`p-3 rounded-xl font-medium transition-all duration-300 hover:scale-105 ${
-                isDark
-                  ? 'bg-red-600 hover:bg-red-700 text-white'
-                  : 'bg-red-500 hover:bg-red-600 text-white'
-              } shadow-lg`}
+              className="p-3 rounded-xl font-medium transition-all duration-300 hover:scale-105 shadow-lg bg-red-500 hover:bg-red-600 text-white dark:bg-red-600 dark:hover:bg-red-700"
             >
               <Minus size={20} />
             </button>
             
             <button
               onClick={increment}
-              className={`p-3 rounded-xl font-medium transition-all duration-300 hover:scale-105 ${
-                isDark
-                  ? 'bg-green-600 hover:bg-green-700 text-white'
-                  : 'bg-green-500 hover:bg-green-600 text-white'
-              } shadow-lg`}
+              className="p-3 rounded-xl font-medium transition-all duration-300 hover:scale-105 shadow-lg bg-green-500 hover:bg-green-600 text-white dark:bg-green-600 dark:hover:bg-green-700"
             >
               <Plus size={20} />
             </button>
             
             <button
               onClick={reset}
-              className={`p-3 rounded-xl font-medium transition-all duration-300 hover:scale-105 ${
-                isDark
-                  ? 'bg-gray-600 hover:bg-gray-700 text-white'
-                  : 'bg-gray-500 hover:bg-gray-600 text-white'
-              } shadow-lg`}
+              className="p-3 rounded-xl font-medium transition-all duration-300 hover:scale-105 shadow-lg bg-gray-500 hover:bg-gray-600 text-white dark:bg-gray-600 dark:hover:bg-gray-700"
             >
               <RotateCcw size={20} />
             </button>
@@ -123,10 +93,10 @@ export default function HomePage() {
           <div className="text-center">
             <span className={`px-3 py-1 rounded-full text-sm font-medium ${
               count > 0 
-                ? 'bg-green-100 text-green-800' 
+                ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' 
                 : count < 0 
-                ? 'bg-red-100 text-red-800'
-                : 'bg-gray-100 text-gray-800'
+                ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
             }`}>
               {count > 0 ? 'Positive' : count < 0 ? 'Negative' : 'Zero'}
             </span>
