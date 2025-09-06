@@ -1,44 +1,44 @@
-'use client'
+'use client';
 
-import { useAppStore } from '@/store/useAppStore'
-import { Plus, Minus, RotateCcw, Heart } from 'lucide-react'
+import { useAppStore } from '@/store/useAppStore';
+import { Plus, Minus, RotateCcw, Heart } from 'lucide-react';
 
 export default function HomePage() {
-  const { 
-    count, 
-    name, 
-    theme, 
-    increment, 
-    decrement, 
-    reset, 
-    setName, 
-    toggleTheme 
-  } = useAppStore()
+  const {
+    count,
+    name,
+    theme,
+    increment,
+    decrement,
+    reset,
+    setName,
+    toggleTheme,
+  } = useAppStore();
 
   return (
-    <div className="min-h-screen transition-colors duration-300 text-gray-900 dark:text-white app-bg">
+    <div className="app-bg min-h-screen text-gray-900 transition-colors duration-300 dark:text-white">
       <div className="container mx-auto px-4 py-16">
         {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-6xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-            Hello, {name}! 
+        <div className="mb-12 text-center">
+          <h1 className="mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-6xl font-bold text-transparent">
+            Hello, {name}!
           </h1>
-          <p className="text-xl opacity-70 mb-8">
+          <p className="mb-8 text-xl opacity-70">
             Welcome to your Next.js app with Zustand state management
           </p>
-          
+
           {/* Theme Toggle */}
           <button
             onClick={toggleTheme}
-            className="px-6 py-2 rounded-full font-medium transition-all duration-300 bg-gray-800 text-white hover:bg-gray-700 dark:bg-yellow-500 dark:text-gray-900 dark:hover:bg-yellow-400"
+            className="rounded-full bg-gray-800 px-6 py-2 font-medium text-white transition-all duration-300 hover:bg-gray-700 dark:bg-yellow-500 dark:text-gray-900 dark:hover:bg-yellow-400"
           >
             {theme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode'}
           </button>
         </div>
 
         {/* Name Input */}
-        <div className="max-w-md mx-auto mb-12">
-          <label className="block text-sm font-medium mb-2 opacity-70">
+        <div className="mx-auto mb-12 max-w-md">
+          <label className="mb-2 block text-sm font-medium opacity-70">
             Change your name:
           </label>
           <input
@@ -46,44 +46,42 @@ export default function HomePage() {
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Enter your name"
-            className="w-full px-4 py-3 rounded-lg border transition-colors duration-300 bg-white border-gray-300 text-gray-900 placeholder-gray-500 focus:border-blue-500 dark:bg-gray-800 dark:border-gray-600 dark:text-white dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+            className="w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-gray-900 placeholder-gray-500 transition-colors duration-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:outline-none dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-400"
           />
         </div>
 
         {/* Counter Section */}
-        <div className="max-w-md mx-auto rounded-2xl p-8 shadow-xl transition-colors duration-300 bg-white shadow-gray-300/50 dark:bg-gray-800 dark:shadow-gray-900/50">
-          <div className="text-center mb-8">
-            <h2 className="text-2xl font-semibold mb-4 flex items-center justify-center gap-2">
+        <div className="mx-auto max-w-md rounded-2xl bg-white p-8 shadow-xl shadow-gray-300/50 transition-colors duration-300 dark:bg-gray-800 dark:shadow-gray-900/50">
+          <div className="mb-8 text-center">
+            <h2 className="mb-4 flex items-center justify-center gap-2 text-2xl font-semibold">
               <Heart className="text-red-500" size={24} />
               Counter Demo
             </h2>
-            <div className="text-6xl font-bold text-blue-600 mb-4">
-              {count}
-            </div>
+            <div className="mb-4 text-6xl font-bold text-blue-600">{count}</div>
             <p className="opacity-70">
               This counter state is managed by Zustand
             </p>
           </div>
 
           {/* Counter Controls */}
-          <div className="flex gap-3 justify-center mb-6">
+          <div className="mb-6 flex justify-center gap-3">
             <button
               onClick={decrement}
-              className="p-3 rounded-xl font-medium transition-all duration-300 hover:scale-105 shadow-lg bg-red-500 hover:bg-red-600 text-white dark:bg-red-600 dark:hover:bg-red-700"
+              className="rounded-xl bg-red-500 p-3 font-medium text-white shadow-lg transition-all duration-300 hover:scale-105 hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700"
             >
               <Minus size={20} />
             </button>
-            
+
             <button
               onClick={increment}
-              className="p-3 rounded-xl font-medium transition-all duration-300 hover:scale-105 shadow-lg bg-green-500 hover:bg-green-600 text-white dark:bg-green-600 dark:hover:bg-green-700"
+              className="rounded-xl bg-green-500 p-3 font-medium text-white shadow-lg transition-all duration-300 hover:scale-105 hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700"
             >
               <Plus size={20} />
             </button>
-            
+
             <button
               onClick={reset}
-              className="p-3 rounded-xl font-medium transition-all duration-300 hover:scale-105 shadow-lg bg-gray-500 hover:bg-gray-600 text-white dark:bg-gray-600 dark:hover:bg-gray-700"
+              className="rounded-xl bg-gray-500 p-3 font-medium text-white shadow-lg transition-all duration-300 hover:scale-105 hover:bg-gray-600 dark:bg-gray-600 dark:hover:bg-gray-700"
             >
               <RotateCcw size={20} />
             </button>
@@ -91,23 +89,25 @@ export default function HomePage() {
 
           {/* Status */}
           <div className="text-center">
-            <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-              count > 0 
-                ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200' 
-                : count < 0 
-                ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-                : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
-            }`}>
+            <span
+              className={`rounded-full px-3 py-1 text-sm font-medium ${
+                count > 0
+                  ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                  : count < 0
+                    ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                    : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
+              }`}
+            >
               {count > 0 ? 'Positive' : count < 0 ? 'Negative' : 'Zero'}
             </span>
           </div>
         </div>
 
         {/* Footer */}
-        <div className="text-center mt-12 opacity-60">
+        <div className="mt-12 text-center opacity-60">
           <p>Built with Next.js, Zustand, Tailwind CSS & Lucide Icons</p>
         </div>
       </div>
     </div>
-  )
+  );
 }
