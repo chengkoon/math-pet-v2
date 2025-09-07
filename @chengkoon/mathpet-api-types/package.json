@@ -1,0 +1,16 @@
+{
+  "name": "@chengkoon/mathpet-api-types",
+  "version": "1.0.398",
+  "description": "Generated TypeScript types from MathPet backend API",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chengkoon/testbank-backend.git"
+  },
+  "publishConfig": {
+    "@chengkoon:registry": "https://npm.pkg.github.com"
+  },
+  "author": "MathPet",
+  "license": "UNLICENSED"
+}
