@@ -12,12 +12,13 @@
 - **Turbopack** enabled for dev/build (faster bundling)
 
 ### State & Data Management
-- **Zustand 5.x** for global state management
-- **TanStack Query 5.x** for server state and caching
+- **Zustand 5.x** for client state management (UI state, user preferences, temporary data)
+- **TanStack Query 5.x** for server state management (API calls, caching, synchronization)
 - **Axios** for HTTP requests
+- **React Hook Form + Zod** for form handling with validation
 - **@chengkoon/mathpet-api-types** for backend type definitions
 
-### Styling & Theming
+### UI Components & Styling
 - **Tailwind CSS v4** ⚠️ Important differences:
   - Uses `@import 'tailwindcss'` (not `@tailwind` directives)
   - Use `darkMode: 'class'` for next-themes compatibility
@@ -25,12 +26,17 @@
 - **next-themes** for theme switching (light/dark/system)
 - **lucide-react** for icons
 - **class-variance-authority** + **clsx** + **tailwind-merge** for conditional styling
+- **shadcn/ui** available (copy-paste component system built on Radix UI)
+- **Radix UI** or **Headless UI** for accessible primitives (when using shadcn/ui)
 
-### Development & Testing Stack
+### Testing Strategy
+- **Playwright** for both E2E and component testing (unified testing approach)
+- **Vitest** for unit testing (preferred over Jest for modern ESM-native testing)
+- Test files in `/tests/` directory
+
+### Development & Quality Tools
 - **ESLint 9.x** with flat config (eslint.config.mjs)
 - **Prettier 3.x** with Tailwind plugin for class sorting
-- **Playwright** for E2E testing (not Jest/Vitest for E2E)
-- **Vitest** available but not configured yet
 - **Husky** for git hooks (not configured yet)
 - **Conventional commits** setup (commitlint installed but not configured)
 
@@ -43,7 +49,33 @@
 
 ## 🎯 Implementation Guidelines
 
-### 1. Tailwind CSS v4 - CRITICAL DIFFERENCES
+### 1. State Management Separation - CRITICAL UNDERSTANDING
+
+**✅ Use Zustand for CLIENT STATE:**
+```tsx
+// src/store/useAppStore.ts
+export const useAppStore = create<AppStore>((set) => ({
+  sidebarOpen: false,
+  theme: 'dark',
+  userPreferences: {},
+  toggleSidebar: () => set((state) => ({ sidebarOpen: !state.sidebarOpen }))
+}));
+```
+
+**✅ Use TanStack Query for SERVER STATE:**
+```tsx
+// src/hooks/useQuestions.ts
+export const useQuestions = (page = 0) => {
+  return useQuery({
+    queryKey: ['questions', page],
+    queryFn: () => questionsApi.getStudentQuestions(page),
+  });
+};
+```
+
+**❌ DON'T mix server data in Zustand or client state in TanStack Query**
+
+### 2. Tailwind CSS v4 - CRITICAL DIFFERENCES
 
 **❌ DON'T USE (v3 syntax):**
 ```css
@@ -70,7 +102,30 @@
 className="bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
 ```
 
-### 2. Next-themes Integration
+### 3. Next.js Middleware for Authentication
+
+**✅ Use Next.js Middleware for route protection:**
+```tsx
+// middleware.ts
+import { NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
+
+export function middleware(request: NextRequest) {
+  const token = request.cookies.get('auth-token')
+  
+  if (request.nextUrl.pathname.startsWith('/dashboard')) {
+    if (!token) {
+      return NextResponse.redirect(new URL('/login', request.url))
+    }
+  }
+}
+
+export const config = {
+  matcher: ['/dashboard/:path*', '/admin/:path*']
+}
+```
+
+### 4. Next-themes Integration
 
 **✅ Correct Setup:**
 ```tsx
@@ -86,7 +141,7 @@ export default {
 }
 ```
 
-### 3. API Types - ALWAYS USE PUBLISHED PACKAGE
+### 5. API Types - ALWAYS USE PUBLISHED PACKAGE
 
 **✅ FIRST PRIORITY - Use published types:**
 ```tsx
@@ -103,7 +158,7 @@ interface ThemeToggleProps {
 }
 ```
 
-### 4. Component Architecture
+### 6. Component Architecture
 
 **✅ Atomic Design Pattern:**
 ```
@@ -121,27 +176,18 @@ useCustomHook.ts      # camelCase for hooks
 types.ts              # lowercase for utilities
 ```
 
-### 5. State Management Patterns
+### 7. shadcn/ui Integration
 
-**✅ Zustand Store Pattern:**
-```tsx
-export const useAppStore = create<AppStore>((set) => ({
-  count: 0,
-  increment: () => set((state) => ({ count: state.count + 1 })),
-}));
+**✅ When adding shadcn/ui components:**
+```bash
+npx shadcn@latest init
+npx shadcn@latest add button
+npx shadcn@latest add input
 ```
 
-**✅ TanStack Query Pattern:**
-```tsx
-export const useQuestions = (page = 0) => {
-  return useQuery({
-    queryKey: ['questions', page],
-    queryFn: () => questionsApi.getStudentQuestions(page),
-  });
-};
-```
+**✅ shadcn/ui is copy-paste, not npm install - components go in src/components/ui/**
 
-### 6. Anti-Patterns Prevention
+### 8. Anti-Patterns Prevention
 
 **❌ NEVER do these (causes infinite loops):**
 ```tsx
@@ -160,20 +206,26 @@ useEffect(() => {
 }, [condition]); // ✅ Only primitive dependencies
 ```
 
-### 7. Testing Strategy
+### 9. Testing Strategy with Playwright
 
-**✅ Current Setup:**
-- **Playwright** for E2E testing (working)
-- **Vitest** available for unit tests (not configured)
-- Tests in `/tests/` directory
-
-**✅ Playwright Test Pattern:**
+**✅ Use Playwright for comprehensive testing:**
 ```tsx
-test('should work correctly', async ({ page }) => {
+// tests/e2e/homepage.spec.ts
+test('should toggle theme correctly', async ({ page }) => {
   await page.goto('/');
-  await expect(page.locator('[data-testid="element"]')).toBeVisible();
+  await page.click('[data-testid="theme-toggle"]');
+  await expect(page.locator('html')).toHaveClass(/dark/);
+});
+
+// tests/component/counter.spec.ts - Component testing
+test('counter increments correctly', async ({ mount }) => {
+  const component = await mount(<Counter />);
+  await component.click('[data-testid="increment"]');
+  await expect(component.locator('[data-testid="count"]')).toHaveText('1');
 });
 ```
+
+**✅ Prefer Playwright over Jest/Vitest for E2E and component testing**
 
 ---
 
@@ -182,7 +234,7 @@ test('should work correctly', async ({ page }) => {
 ### Current Config Status
 
 **✅ Well Configured:**
-- `package.json` - Good scripts, latest dependencies
+- `package.json` - Good scripts with Turbopack, latest dependencies
 - `tsconfig.json` - Strict TypeScript with good compiler options
 - `next.config.ts` - Basic but functional
 - `tailwind.config.js` - Now correctly simplified for v4
@@ -247,14 +299,16 @@ npx lint-staged
 1. **Check this file first** - understand the exact tech stack
 2. **Verify Tailwind version** - use v4 syntax
 3. **Check existing API types** - use published package first
-4. **Follow established patterns** - don't reinvent
+4. **Understand state separation** - client vs server state
+5. **Follow established patterns** - don't reinvent
 
 ### During Development:
 1. **Use TypeScript strictly** - no `any` types
 2. **Follow Next.js App Router patterns**
-3. **Use Zustand for client state**, **TanStack Query for server state**
+3. **Separate concerns**: Zustand for client state, TanStack Query for server state
 4. **Standard Tailwind classes** - no CSS variables
-5. **Test with Playwright** for E2E scenarios
+5. **Test with Playwright** for both E2E and component scenarios
+6. **Use Next.js middleware** for authentication and route protection
 
 ### Key Commands:
 ```bash
@@ -262,9 +316,49 @@ npm run dev          # Development with Turbopack
 npm run build        # Production build with Turbopack  
 npm run lint         # ESLint check
 npm run format       # Prettier formatting
-npm run test:e2e     # Playwright E2E tests
+npm run test         # Playwright tests (E2E + component)
+npm run test:ui      # Playwright UI mode
 npm run type-check   # TypeScript validation
 ```
+
+---
+
+## 📋 Frontend Repository Goals & Standards
+
+### Code Quality & Architecture:
+- **TypeScript-first** - Strict typing, no `any` types, proper interfaces
+- **Component-driven** - Reusable, single-responsibility components
+- **DRY yet readable** - Abstract smartly but prioritize clarity
+- **Consistent patterns** - Standardized folder structure, naming conventions
+- **Clean imports** - Use absolute paths (`@/components`), organized import order
+
+### Performance & UX:
+- **Mobile-first responsive** - Works seamlessly on all device sizes
+- **Core Web Vitals optimized** - Fast LCP, minimal CLS, good FID
+- **Lazy loading** - Code splitting, image optimization, route-based chunks
+- **Accessibility-first** - WCAG compliance, semantic HTML, keyboard navigation
+- **Progressive enhancement** - Works without JS, enhances with it
+
+### Developer Experience:
+- **Modern testing stack** - Playwright for comprehensive testing, Vitest for unit tests
+- **Comprehensive test coverage** - Unit, integration, E2E across the application
+- **Hot reload friendly** - Fast development feedback loop with Turbopack
+- **Lint & format on save** - ESLint, Prettier, consistent code style
+- **Type-safe APIs** - Proper data fetching with validation (Zod)
+- **Git hooks** - Pre-commit linting, testing, conventional commits
+
+### Modern Best Practices:
+- **Server-first thinking** - Leverage SSR/SSG when beneficial
+- **Error boundaries** - Graceful error handling and recovery
+- **Loading states** - Skeleton screens, optimistic updates
+- **SEO optimized** - Meta tags, structured data, social sharing
+- **Bundle size conscious** - Tree shaking, analyze bundle impact
+
+### Maintainability:
+- **Self-documenting code** - Clear variable/function names, minimal comments
+- **Storybook ready** - Components work in isolation
+- **Environment agnostic** - Easy local dev, staging, production deploys
+- **Monorepo friendly** - If applicable, clean package boundaries
 
 ---
 
@@ -274,51 +368,11 @@ npm run type-check   # TypeScript validation
 - [ ] Using Tailwind v4 syntax (`@import 'tailwindcss'`)
 - [ ] Checking `@chengkoon/mathpet-api-types` for existing types
 - [ ] Using `darkMode: 'class'` for theming
-- [ ] Following Zustand/TanStack Query patterns
+- [ ] Separating client state (Zustand) from server state (TanStack Query)
 - [ ] No function dependencies in useEffect
 - [ ] TypeScript strict mode compliance
 - [ ] Next.js App Router architecture
+- [ ] Playwright for testing over Jest
+- [ ] Using Next.js middleware for auth when needed
 
 **This prevents u-turns and ensures consistent, modern code that works with your exact tech stack.**
-
----
-
-Code Quality & Architecture:
-
-- TypeScript-first - Strict typing, no any types, proper interfaces
-- Component-driven - Reusable, single-responsibility components
-- DRY yet readable - Abstract smartly but prioritize clarity
-- Consistent patterns - Standardized folder structure, naming conventions
-- Clean imports - Use absolute paths (@/components), organized import order
-
-Performance & UX:
-
-- Mobile-first responsive - Works seamlessly on all device sizes
-- Core Web Vitals optimized - Fast LCP, minimal CLS, good FID
-- Lazy loading - Code splitting, image optimization, route-based chunks
-- Accessibility-first - WCAG compliance, semantic HTML, keyboard navigation
-- Progressive enhancement - Works without JS, enhances with it
-
-Developer Experience:
-
-- Modern testing stack - Vitest for faster, ESM-native testing over Jest
-- Comprehensive test coverage - Unit, integration, E2E across the application
-- Hot reload friendly - Fast development feedback loop
-- Lint & format on save - ESLint, Prettier, consistent code style
-- Type-safe APIs - Proper data fetching with validation (Zod)
-- Git hooks - Pre-commit linting, testing, conventional commits
-
-Modern Best Practices:
-
-- Server-first thinking - Leverage SSR/SSG when beneficial
-- Error boundaries - Graceful error handling and recovery
-- Loading states - Skeleton screens, optimistic updates
-- SEO optimized - Meta tags, structured data, social sharing
-- Bundle size conscious - Tree shaking, analyze bundle impact
-
-Maintainability:
-
-- Self-documenting code - Clear variable/function names, minimal comments
-- Storybook ready - Components work in isolation
-- Environment agnostic - Easy local dev, staging, production deploys
-- Monorepo friendly - If applicable, clean package boundaries
