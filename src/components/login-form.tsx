@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -28,6 +29,8 @@ interface LoginFormProps {
 export function LoginForm({ className }: LoginFormProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
   const {
     register,
@@ -48,7 +51,13 @@ export function LoginForm({ className }: LoginFormProps) {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // TODO: Handle successful login (redirect, store tokens, etc.)
+      // TODO: Handle successful login (store tokens, etc.)
+      
+      // Get the redirect URL from search params or default to dashboard
+      const from = searchParams.get('from') || '/dashboard';
+      
+      // Redirect to the intended page or dashboard
+      router.push(from);
       
     } catch (error) {
       console.error('Login failed:', error);
