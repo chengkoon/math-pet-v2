@@ -32,9 +32,8 @@ export function middleware(request: NextRequest) {
   // Check if the current path is a public route
   const isPublicRoute = publicRoutes.includes(pathname);
   
-  // For now, always redirect protected routes to login
-  // TODO: Replace with actual authentication check when implementing auth
-  const isAuthenticated = false;
+  const token = request.cookies.get('auth-token')?.value;
+  const isAuthenticated = !!token;
   console.log(`Middleware: isProtectedRoute=${isProtectedRoute}, isPublicRoute=${isPublicRoute}, isAuthenticated=${isAuthenticated}`);
   if (isProtectedRoute && !isAuthenticated) {
     // Store the attempted URL for redirect after login
