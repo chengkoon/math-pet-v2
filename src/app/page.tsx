@@ -1,6 +1,6 @@
 'use client';
 
-import { useAppStore } from '@/store/useAppStore';
+import { useAppStore } from '@/store/use-app-store';
 import { Plus, Minus, RotateCcw, Heart } from 'lucide-react';
 import ThemeSwitcher from '@/components/ThemeSwitcher';
 
