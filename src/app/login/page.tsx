@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
 import { GalleryVerticalEnd } from 'lucide-react';
-import { LoginForm } from '@/components/login-form';
+import { LoginForm } from '@/components/forms/login-form';
 
 export const metadata: Metadata = {
   title: 'Login | MathPet',
