@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { Metadata } from 'next';
 import Link from 'next/link';
 import { GalleryVerticalEnd } from 'lucide-react';
@@ -7,6 +8,15 @@ export const metadata: Metadata = {
   title: 'Login | MathPet',
   description: 'Sign in to your MathPet account',
 };
+
+function LoginFormSuspense() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <LoginForm />
+    </Suspense>
+  );
+}
+
 
 export default function LoginPage() {
   return (
@@ -29,7 +39,7 @@ export default function LoginPage() {
         {/* Centered Login Form */}
         <div className="flex flex-1 items-center justify-center">
           <div className="w-full max-w-xs">
-            <LoginForm />
+            <LoginFormSuspense />
           </div>
         </div>
       </div>
