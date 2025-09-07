@@ -2,17 +2,16 @@
 
 import { useAppStore } from '@/store/useAppStore';
 import { Plus, Minus, RotateCcw, Heart } from 'lucide-react';
+import ThemeSwitcher from '@/components/ThemeSwitcher';
 
 export default function HomePage() {
   const {
     count,
     name,
-    theme,
     increment,
     decrement,
     reset,
     setName,
-    toggleTheme,
   } = useAppStore();
 
   return (
@@ -27,18 +26,15 @@ export default function HomePage() {
             Welcome to your Next.js app with Zustand state management
           </p>
 
-          {/* Theme Toggle */}
-          <button
-            onClick={toggleTheme}
-            className="rounded-full bg-gray-800 px-6 py-2 font-medium text-white transition-all duration-300 hover:bg-gray-700 dark:bg-yellow-500 dark:text-gray-900 dark:hover:bg-yellow-400"
-          >
-            {theme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode'}
-          </button>
+          {/* Theme Switcher */}
+          <div className="mb-8">
+            <ThemeSwitcher />
+          </div>
         </div>
 
         {/* Name Input */}
         <div className="mx-auto mb-12 max-w-md">
-          <label className="mb-2 block text-sm font-medium opacity-70">
+          <label className="mb-2 block text-sm font-medium text-gray-600 dark:text-gray-400">
             Change your name:
           </label>
           <input
@@ -51,14 +47,14 @@ export default function HomePage() {
         </div>
 
         {/* Counter Section */}
-        <div className="mx-auto max-w-md rounded-2xl bg-white p-8 shadow-xl shadow-gray-300/50 transition-colors duration-300 dark:bg-gray-800 dark:shadow-gray-900/50">
+        <div className="mx-auto max-w-md rounded-2xl bg-white p-8 shadow-xl transition-colors duration-300 dark:bg-gray-800">
           <div className="mb-8 text-center">
-            <h2 className="mb-4 flex items-center justify-center gap-2 text-2xl font-semibold">
+            <h2 className="mb-4 flex items-center justify-center gap-2 text-2xl font-semibold text-gray-900 dark:text-white">
               <Heart className="text-red-500" size={24} />
               Counter Demo
             </h2>
             <div className="mb-4 text-6xl font-bold text-blue-600">{count}</div>
-            <p className="opacity-70">
+            <p className="text-gray-600 dark:text-gray-400">
               This counter state is managed by Zustand
             </p>
           </div>
@@ -67,21 +63,21 @@ export default function HomePage() {
           <div className="mb-6 flex justify-center gap-3">
             <button
               onClick={decrement}
-              className="rounded-xl bg-red-500 p-3 font-medium text-white shadow-lg transition-all duration-300 hover:scale-105 hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700"
+              className="rounded-xl bg-red-500 p-3 font-medium text-white shadow-lg transition-all duration-300 hover:scale-105 hover:bg-red-600"
             >
               <Minus size={20} />
             </button>
 
             <button
               onClick={increment}
-              className="rounded-xl bg-green-500 p-3 font-medium text-white shadow-lg transition-all duration-300 hover:scale-105 hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700"
+              className="rounded-xl bg-green-500 p-3 font-medium text-white shadow-lg transition-all duration-300 hover:scale-105 hover:bg-green-600"
             >
               <Plus size={20} />
             </button>
 
             <button
               onClick={reset}
-              className="rounded-xl bg-gray-500 p-3 font-medium text-white shadow-lg transition-all duration-300 hover:scale-105 hover:bg-gray-600 dark:bg-gray-600 dark:hover:bg-gray-700"
+              className="rounded-xl bg-gray-500 p-3 font-medium text-white shadow-lg transition-all duration-300 hover:scale-105 hover:bg-gray-600"
             >
               <RotateCcw size={20} />
             </button>
@@ -104,8 +100,8 @@ export default function HomePage() {
         </div>
 
         {/* Footer */}
-        <div className="mt-12 text-center opacity-60">
-          <p>Built with Next.js, Zustand, Tailwind CSS & Lucide Icons</p>
+        <div className="mt-12 text-center text-gray-600 dark:text-gray-400">
+          <p>Built with Next.js, next-themes, Zustand, Tailwind CSS & Lucide Icons</p>
         </div>
       </div>
     </div>

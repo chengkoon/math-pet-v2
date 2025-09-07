@@ -1,6 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 const tailwindConfig = {
-  darkMode: 'class',
+  darkMode: 'class', // Use 'class' for next-themes compatibility
   content: [
     './src/app/**/*.{js,ts,jsx,tsx,mdx}',
     './src/components/**/*.{js,ts,jsx,tsx,mdx}',
