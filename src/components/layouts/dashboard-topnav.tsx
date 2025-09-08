@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
+import { useTheme } from 'next-themes';
 import {
   Menu,
   X,
@@ -64,13 +65,14 @@ const navigationItems = [
 
 // Theme toggle component
 function ThemeToggle({ className }: ThemeToggleProps) {
-  const [theme, setTheme] = useState<'light' | 'dark' | 'system'>('system');
+
+  const { theme, setTheme } = useTheme();
 
   const handleThemeChange = () => {
-    const themes: Array<'light' | 'dark' | 'system'> = ['light', 'dark', 'system'];
-    const currentIndex = themes.indexOf(theme);
-    const nextTheme = themes[(currentIndex + 1) % themes.length] as 'light' | 'dark' | 'system';
-    setTheme(nextTheme);
+    const themes: ['light', 'dark', 'system'] = ['light', 'dark', 'system'];
+    const currentIndex = themes.indexOf((theme as 'light' | 'dark' | 'system') ?? 'system');
+    const nextTheme = themes[(currentIndex + 1) % themes.length];
+    setTheme(nextTheme as 'light' | 'dark' | 'system');
     // TODO: Integrate with next-themes
     // This is where you'd call your theme provider's setTheme function
     console.log('Theme changed to:', nextTheme);
