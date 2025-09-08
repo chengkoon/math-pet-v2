@@ -1,4 +1,45 @@
+import { TopicGrid } from '@/components/features/topic-grid';
+
+const practiceTopics = [
+  {
+    title: 'Addition',
+    description: 'Practice basic addition problems',
+    icon: (
+      <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+      </svg>
+    ),
+    color: 'from-green-400 to-blue-500',
+    normalColor: 'blue',
+  },
+  {
+    title: 'Subtraction',
+    description: 'Practice basic subtraction problems',
+    icon: (
+      <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+      </svg>
+    ),
+    color: 'from-pink-500 to-yellow-500',
+    normalColor: 'green',
+  },
+  {
+    title: 'Multiplication',
+    description: 'Practice multiplication tables',
+    icon: (
+      <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    ),
+    color: 'from-purple-400 to-indigo-500',
+    normalColor: 'purple',
+  },
+];
+
+
 export default function PracticePage() {
+  const gridVariant = 'kidFriendly';
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
@@ -9,23 +50,7 @@ export default function PracticePage() {
           Choose a topic to start practising
         </p>
         
-        {/* Topic grid will go here in future */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <div className="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-lg border border-blue-200 dark:border-blue-800">
-            <h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-2">Addition</h3>
-            <p className="text-blue-700 dark:text-blue-300 text-sm">Practice basic addition problems</p>
-          </div>
-          
-          <div className="bg-green-50 dark:bg-green-900/20 p-6 rounded-lg border border-green-200 dark:border-green-800">
-            <h3 className="font-semibold text-green-900 dark:text-green-100 mb-2">Subtraction</h3>
-            <p className="text-green-700 dark:text-green-300 text-sm">Practice basic subtraction problems</p>
-          </div>
-          
-          <div className="bg-purple-50 dark:bg-purple-900/20 p-6 rounded-lg border border-purple-200 dark:border-purple-800">
-            <h3 className="font-semibold text-purple-900 dark:text-purple-100 mb-2">Multiplication</h3>
-            <p className="text-purple-700 dark:text-purple-300 text-sm">Practice multiplication tables</p>
-          </div>
-        </div>
+        <TopicGrid topics={practiceTopics} variant={gridVariant} />
       </div>
     </div>
   );
