@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { useRouter, usePathname } from 'next/navigation';
 import {
   Menu,
@@ -17,6 +18,8 @@ import {
   Sun,
   Monitor,
 } from 'lucide-react';
+import { useAppStore } from '@/store/use-app-store';
+import { useLogout } from '@/hooks/use-auth';
 
 // Types for component props
 interface TopNavProps {
@@ -44,6 +47,28 @@ const mockUser = {
   avatar: null, // URL or null for initials
 };
 
+// User avatar component
+function UserAvatar({ avatar, name, size = 40 }: { avatar: string | null, name: string, size?: number }) {
+  return (
+    <div
+      className={`bg-blue-500 rounded-full flex items-center justify-center text-white font-medium`}
+      style={{ width: size, height: size }}
+    >
+      {avatar ? (
+        <Image
+          src={avatar}
+          alt={name}
+          width={size}
+          height={size}
+          className="rounded-full object-cover"
+        />
+      ) : (
+        name.split(' ').map(n => n[0]).join('').toUpperCase()
+      )}
+    </div>
+  );
+}
+
 // Navigation items for mobile menu
 const navigationItems = [
   { href: '/home', label: 'Home', icon: Home },
@@ -59,9 +84,8 @@ function ThemeToggle({ className }: ThemeToggleProps) {
   const handleThemeChange = () => {
     const themes: Array<'light' | 'dark' | 'system'> = ['light', 'dark', 'system'];
     const currentIndex = themes.indexOf(theme);
-    const nextTheme = themes[(currentIndex + 1) % themes.length];
+    const nextTheme = themes[(currentIndex + 1) % themes.length] as 'light' | 'dark' | 'system';
     setTheme(nextTheme);
-    
     // TODO: Integrate with next-themes
     // This is where you'd call your theme provider's setTheme function
     console.log('Theme changed to:', nextTheme);
@@ -109,17 +133,20 @@ function NotificationBell({ className, count = 0 }: NotificationBellProps) {
 // User menu dropdown
 function UserMenu({ isOpen, onClose }: UserMenuProps) {
   const router = useRouter();
+  const { user } = useAppStore();
+  const logoutMutation = useLogout();
 
   const handleNavigation = (href: string) => {
-    router.push(href);
+    router.push(href as unknown as Parameters<typeof router.push>[0]);
     onClose();
   };
 
   const handleLogout = () => {
-    // TODO: Implement actual logout logic
-    console.log('Logging out...');
+    logoutMutation.mutate();
     onClose();
   };
+
+  const userData = user;
 
   if (!isOpen) return null;
 
@@ -136,23 +163,16 @@ function UserMenu({ isOpen, onClose }: UserMenuProps) {
       <div className="absolute right-0 top-full mt-2 w-64 bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50">
         <div className="p-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center space-x-3">
-            <div className="h-10 w-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-medium">
-              {mockUser.avatar ? (
-                <img
-                  src={mockUser.avatar}
-                  alt={mockUser.name}
-                  className="h-full w-full rounded-full object-cover"
-                />
-              ) : (
-                mockUser.name.split(' ').map(n => n[0]).join('').toUpperCase()
-              )}
-            </div>
+            <UserAvatar avatar={mockUser.avatar} name={mockUser.name} size={40} />
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                {mockUser.name}
+                {userData && userData.firstName && userData.lastName 
+                  ? `${userData.firstName} ${userData.lastName}`
+                  : ''
+                }
               </p>
               <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                {mockUser.email}
+                {userData && userData.email}
               </p>
             </div>
           </div>
@@ -179,10 +199,20 @@ function UserMenu({ isOpen, onClose }: UserMenuProps) {
           
           <button
             onClick={handleLogout}
-            className="w-full flex items-center space-x-3 px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md"
+            disabled={logoutMutation.isPending}
+            className="w-full flex items-center space-x-3 px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <LogOut className="h-4 w-4" />
-            <span>Sign out</span>
+            {logoutMutation.isPending ? (
+              <>
+                <div className="animate-spin h-4 w-4 border-2 border-red-600 border-t-transparent rounded-full" />
+                <span>Signing out...</span>
+              </>
+            ) : (
+              <>
+                <LogOut className="h-4 w-4" />
+                <span>Sign out</span>
+              </>
+            )}
           </button>
         </div>
       </div>
@@ -198,7 +228,7 @@ export function DashboardTopNav({ className }: TopNavProps) {
   const router = useRouter();
 
   const handleMobileNavigation = (href: string) => {
-    router.push(href);
+    router.push(href as unknown as Parameters<typeof router.push>[0]);
     setIsMobileMenuOpen(false);
   };
 
@@ -228,7 +258,7 @@ export function DashboardTopNav({ className }: TopNavProps) {
                 return (
                   <button
                     key={item.href}
-                    onClick={() => router.push(item.href)}
+                    onClick={() => router.push(item.href as unknown as Parameters<typeof router.push>[0])}
                     className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                       isActive
                         ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300'
@@ -260,17 +290,7 @@ export function DashboardTopNav({ className }: TopNavProps) {
                 aria-expanded={isUserMenuOpen}
                 aria-haspopup="true"
               >
-                <div className="h-8 w-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm font-medium">
-                  {mockUser.avatar ? (
-                    <img
-                      src={mockUser.avatar}
-                      alt={mockUser.name}
-                      className="h-full w-full rounded-full object-cover"
-                    />
-                  ) : (
-                    mockUser.name.split(' ').map(n => n[0]).join('').toUpperCase()
-                  )}
-                </div>
+                <UserAvatar avatar={mockUser.avatar} name={mockUser.name} size={32} />
                 <span className="hidden sm:block text-sm font-medium text-gray-700 dark:text-gray-300">
                   {mockUser.name}
                 </span>
