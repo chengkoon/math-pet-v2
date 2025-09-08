@@ -176,16 +176,109 @@ useCustomHook.ts      # camelCase for hooks
 types.ts              # lowercase for utilities
 ```
 
-### 7. shadcn/ui Integration
+### 7. shadcn/ui Integration - CRITICAL PRIORITY
 
-**✅ When adding shadcn/ui components:**
-```bash
-npx shadcn@latest init
-npx shadcn@latest add button
-npx shadcn@latest add input
+**🚨 ALWAYS USE shadcn/ui COMPONENTS FIRST - DO NOT CREATE CUSTOM UI COMPONENTS**
+
+**✅ COMPLETE LIST of Available shadcn/ui Components (as of 2025):**
+
+**Basic UI Elements:**
+- `accordion` - Collapsible content sections
+- `alert` - Alert messages and notifications
+- `alert-dialog` - Modal dialogs for confirmations
+- `avatar` - User profile pictures and initials
+- `badge` - Small status indicators and labels
+- `breadcrumb` - Navigation breadcrumbs
+- `button` - Interactive buttons with variants
+- `card` - Content containers with optional header/footer
+- `separator` - Visual dividers between content
+- `skeleton` - Loading placeholders
+- `typography` - Text styling utilities
+
+**Form Components:**
+- `checkbox` - Checkboxes for multiple selections
+- `form` - React Hook Form integration
+- `input` - Text input fields
+- `input-otp` - One-time password input
+- `label` - Form field labels
+- `radio-group` - Radio button groups
+- `select` - Dropdown select menus
+- `slider` - Range sliders
+- `switch` - Toggle switches
+- `textarea` - Multi-line text input
+- `toggle` - Toggle buttons
+- `toggle-group` - Toggle button groups
+
+**Navigation & Menus:**
+- `combobox` - Searchable select component
+- `command` - Command palette interface
+- `context-menu` - Right-click context menus
+- `dropdown-menu` - Dropdown action menus
+- `hover-card` - Content shown on hover
+- `menubar` - Application menu bar
+- `navigation-menu` - Complex navigation with dropdowns
+- `pagination` - Page navigation controls
+- `sidebar` - Application sidebar navigation
+- `tabs` - Tabbed content interface
+
+**Overlays & Modals:**
+- `dialog` - Modal dialogs
+- `drawer` - Slide-out panels
+- `popover` - Floating content containers
+- `sheet` - Sliding panels from screen edges
+- `tooltip` - Helpful text on hover
+
+**Data Display:**
+- `aspect-ratio` - Maintain aspect ratios
+- `calendar` - Date selection calendar
+- `carousel` - Image/content carousels
+- `chart` - Data visualization charts
+- `collapsible` - Collapsible content areas
+- `data-table` - Feature-rich data tables
+- `date-picker` - Date selection input
+- `progress` - Progress indicators
+- `resizable` - Resizable panels
+- `scroll-area` - Custom scrollable areas
+- `table` - Basic data tables
+
+**Notifications:**
+- `sonner` - **PREFERRED** toast notifications (modern)
+- `toast` - **DEPRECATED** - use Sonner instead
+
+**❌ NEVER CREATE custom UI components if shadcn/ui equivalent exists:**
+```tsx
+// ❌ DON'T DO THIS - create custom toast
+function CustomToast() { /* custom implementation */ }
+
+// ✅ DO THIS - use shadcn/ui
+import { toast } from 'sonner';
+toast.success('Message');
 ```
 
+# Always check available components first
+npx shadcn@latest add --help
+
+# Install the component you need
+npx shadcn@latest add [component-name]
+
+# Use Sonner for toasts (toast component is deprecated)
+npx shadcn@latest add sonner
+
 **✅ shadcn/ui is copy-paste, not npm install - components go in src/components/ui/**
+
+✅ Integration with project patterns:
+
+shadcn/ui components work seamlessly with Tailwind CSS v4
+Built on Radix UI for accessibility compliance
+TypeScript-first with proper interfaces
+Supports dark mode via next-themes automatically
+
+⚠️ ONLY create custom components for:
+
+Business logic components (features/)
+Layout components (layouts/)
+Components that combine multiple shadcn/ui components
+Project-specific functionality not covered by shadcn/ui
 
 ### 8. Anti-Patterns Prevention
 
@@ -374,5 +467,7 @@ npm run type-check   # TypeScript validation
 - [ ] Next.js App Router architecture
 - [ ] Playwright for testing over Jest
 - [ ] Using Next.js middleware for auth when needed
+- [ ] Using shadcn/ui components before creating custom UI components
+- [ ] Checking shadcn/ui registry for available components first
 
 **This prevents u-turns and ensures consistent, modern code that works with your exact tech stack.**
