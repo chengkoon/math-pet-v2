@@ -59,7 +59,6 @@ const mockUser = {
 const navigationItems = [
   { href: '/home', label: 'Home', icon: Home },
   { href: '/practice', label: 'Practice', icon: BookOpen },
-  { href: '/pack', label: 'Packs', icon: Package },
   { href: '/test', label: 'Test', icon: TestTube },
 ];
 
