@@ -18,6 +18,16 @@ import {
   Sun,
   Monitor,
 } from 'lucide-react';
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
+import { Button } from "@/components/ui/button"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { useAppStore } from '@/store/use-app-store';
 import { useLogout } from '@/hooks/use-auth';
 
@@ -103,13 +113,15 @@ function ThemeToggle({ className }: ThemeToggleProps) {
   };
 
   return (
-    <button
+    <Button
+      variant="ghost"
+      size="icon"
       onClick={handleThemeChange}
-      className={`p-2 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 transition-colors ${className}`}
+      className={className}
       aria-label={`Switch to ${theme === 'light' ? 'dark' : theme === 'dark' ? 'system' : 'light'} theme`}
     >
       {getThemeIcon()}
-    </button>
+    </Button>
   );
 }
 
@@ -151,72 +163,58 @@ function UserMenu({ isOpen, onClose }: UserMenuProps) {
   if (!isOpen) return null;
 
   return (
-    <>
-      {/* Backdrop */}
-      <div
-        className="fixed inset-0 z-40"
-        onClick={onClose}
-        aria-hidden="true"
-      />
-      
-      {/* Menu */}
-      <div className="absolute right-0 top-full mt-2 w-64 bg-white dark:bg-gray-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-50">
-        <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-          <div className="flex items-center space-x-3">
-            <UserAvatar avatar={mockUser.avatar} name={mockUser.name} size={40} />
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                {userData && userData.firstName && userData.lastName 
-                  ? `${userData.firstName} ${userData.lastName}`
-                  : ''
-                }
-              </p>
-              <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                {userData && userData.email}
-              </p>
-            </div>
+    <DropdownMenu open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+          <Avatar className="h-8 w-8">
+            <AvatarImage src={mockUser.avatar || undefined} alt={mockUser.name} />
+            <AvatarFallback>
+              {mockUser.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="w-64" align="end" forceMount>
+        <DropdownMenuLabel className="font-normal">
+          <div className="flex flex-col space-y-1">
+            <p className="text-sm font-medium leading-none">
+              {userData && userData.firstName && userData.lastName 
+                ? `${userData.firstName} ${userData.lastName}`
+                : mockUser.name}
+            </p>
+            <p className="text-xs leading-none text-muted-foreground">
+              {userData?.email || mockUser.email}
+            </p>
           </div>
-        </div>
-        
-        <div className="p-2">
-          <button
-            onClick={() => handleNavigation('/dashboard/profile')}
-            className="w-full flex items-center space-x-3 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md"
-          >
-            <User className="h-4 w-4" />
-            <span>Profile</span>
-          </button>
-          
-          <button
-            onClick={() => handleNavigation('/dashboard/settings')}
-            className="w-full flex items-center space-x-3 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md"
-          >
-            <Settings className="h-4 w-4" />
-            <span>Settings</span>
-          </button>
-          
-          <hr className="my-2 border-gray-200 dark:border-gray-700" />
-          
-          <button
-            onClick={handleLogout}
-            disabled={logoutMutation.isPending}
-            className="w-full flex items-center space-x-3 px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {logoutMutation.isPending ? (
-              <>
-                <div className="animate-spin h-4 w-4 border-2 border-red-600 border-t-transparent rounded-full" />
-                <span>Signing out...</span>
-              </>
-            ) : (
-              <>
-                <LogOut className="h-4 w-4" />
-                <span>Sign out</span>
-              </>
-            )}
-          </button>
-        </div>
-      </div>
-    </>
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={() => handleNavigation('/profile')}>
+          <User className="mr-2 h-4 w-4" />
+          <span>Profile</span>
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => handleNavigation('/settings')}>
+          <Settings className="mr-2 h-4 w-4" />
+          <span>Settings</span>
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem 
+          onClick={handleLogout}
+          disabled={logoutMutation.isPending}
+        >
+          {logoutMutation.isPending ? (
+            <>
+              <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+              <span>Signing out...</span>
+            </>
+          ) : (
+            <>
+              <LogOut className="mr-2 h-4 w-4" />
+              <span>Sign out</span>
+            </>
+          )}
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
 
