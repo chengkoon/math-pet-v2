@@ -90,10 +90,12 @@ export function LoginForm() {
               className="w-full px-3 py-2 pr-10 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
               placeholder="Enter your password"
             />
-            <button
+            <Button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
               disabled={isLoading}
+              variant="ghost"
+              size="icon"
               className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 disabled:opacity-50"
             >
               {showPassword ? (
@@ -101,7 +103,7 @@ export function LoginForm() {
               ) : (
                 <Eye className="h-4 w-4" />
               )}
-            </button>
+            </Button>
           </div>
           {errors.password && (
             <p className="mt-1 text-sm text-red-600 dark:text-red-400">

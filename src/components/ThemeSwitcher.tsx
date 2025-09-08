@@ -3,6 +3,7 @@
 import { useTheme } from 'next-themes';
 import { useEffect, useState } from 'react';
 import { Moon, Sun, Monitor } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 export default function ThemeSwitcher() {
   const [mounted, setMounted] = useState(false);
@@ -26,18 +27,20 @@ export default function ThemeSwitcher() {
   return (
     <div className="flex items-center rounded-lg bg-gray-100 p-1 dark:bg-gray-800">
       {themes.map(({ name, icon: Icon, label }) => (
-        <button
+        <Button
           key={name}
+          type="button"
           onClick={() => setTheme(name)}
-          className={`flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+          variant={theme === name ? "secondary" : "ghost"}
+          className={`flex items-center gap-2 px-3 py-2 text-sm font-medium transition-colors ${
             theme === name
-              ? 'bg-white text-gray-900 shadow-sm dark:bg-gray-700 dark:text-white'
-              : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white'
+              ? 'shadow-sm'
+              : ''
           }`}
         >
           <Icon className="h-4 w-4" />
           <span className="hidden sm:inline">{label}</span>
-        </button>
+        </Button>
       ))}
     </div>
   );
