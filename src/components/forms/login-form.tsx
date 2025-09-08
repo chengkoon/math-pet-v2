@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Eye, EyeOff, LogIn } from 'lucide-react';
+import { Button } from "@/components/ui/button"
 import { useLogin } from '@/hooks/use-auth';
 import type { LoginRequest } from '@chengkoon/mathpet-api-types';
 
@@ -120,23 +121,23 @@ export function LoginForm() {
       )}
 
       {/* Submit Button */}
-      <button
+      <Button
         type="submit"
         disabled={!isValid || isLoading}
-        className="w-full flex justify-center items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        className="w-full"
       >
         {isLoading ? (
           <>
-            <div className="animate-spin -ml-1 mr-2 h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
+            <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
             Signing in...
           </>
         ) : (
           <>
-            <LogIn className="h-4 w-4 mr-2" />
+            <LogIn className="mr-2 h-4 w-4" />
             Sign In
           </>
         )}
-      </button>
+      </Button>
     </form>
   );
 }

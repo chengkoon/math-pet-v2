@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from 'react';
-import Image from 'next/image';
 import { useRouter, usePathname } from 'next/navigation';
 import {
   Menu,
@@ -36,10 +35,6 @@ interface TopNavProps {
   className?: string;
 }
 
-interface UserMenuProps {
-  isOpen: boolean;
-  onClose: () => void;
-}
 
 interface ThemeToggleProps {
   className?: string;
@@ -58,26 +53,6 @@ const mockUser = {
 };
 
 // User avatar component
-function UserAvatar({ avatar, name, size = 40 }: { avatar: string | null, name: string, size?: number }) {
-  return (
-    <div
-      className={`bg-blue-500 rounded-full flex items-center justify-center text-white font-medium`}
-      style={{ width: size, height: size }}
-    >
-      {avatar ? (
-        <Image
-          src={avatar}
-          alt={name}
-          width={size}
-          height={size}
-          className="rounded-full object-cover"
-        />
-      ) : (
-        name.split(' ').map(n => n[0]).join('').toUpperCase()
-      )}
-    </div>
-  );
-}
 
 // Navigation items for mobile menu
 const navigationItems = [
@@ -128,7 +103,9 @@ function ThemeToggle({ className }: ThemeToggleProps) {
 // Notification bell component
 function NotificationBell({ className, count = 0 }: NotificationBellProps) {
   return (
-    <button
+    <Button
+      variant="ghost"
+      size="icon"
       className={`relative p-2 rounded-lg bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 transition-colors ${className}`}
       aria-label={`Notifications${count > 0 ? ` (${count} unread)` : ''}`}
     >
@@ -138,34 +115,29 @@ function NotificationBell({ className, count = 0 }: NotificationBellProps) {
           {count > 9 ? '9+' : count}
         </span>
       )}
-    </button>
+    </Button>
   );
 }
 
-// User menu dropdown
-function UserMenu({ isOpen, onClose }: UserMenuProps) {
+// Refactored user menu dropdown using shadcn/ui primitives
+function UserMenu() {
   const router = useRouter();
   const { user } = useAppStore();
   const logoutMutation = useLogout();
+  const userData = user;
 
   const handleNavigation = (href: string) => {
     router.push(href as unknown as Parameters<typeof router.push>[0]);
-    onClose();
   };
 
   const handleLogout = () => {
     logoutMutation.mutate();
-    onClose();
   };
 
-  const userData = user;
-
-  if (!isOpen) return null;
-
   return (
-    <DropdownMenu open={isOpen} onOpenChange={(open) => !open && onClose()}>
+    <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+        <Button variant="ghost" className="relative h-8 w-8 rounded-full p-0">
           <Avatar className="h-8 w-8">
             <AvatarImage src={mockUser.avatar || undefined} alt={mockUser.name} />
             <AvatarFallback>
@@ -174,7 +146,7 @@ function UserMenu({ isOpen, onClose }: UserMenuProps) {
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-64" align="end" forceMount>
+      <DropdownMenuContent className="w-64" align="end">
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
             <p className="text-sm font-medium leading-none">
@@ -221,7 +193,7 @@ function UserMenu({ isOpen, onClose }: UserMenuProps) {
 // Main top navigation component
 export function DashboardTopNav({ className }: TopNavProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  // ...existing code...
   const pathname = usePathname();
   const router = useRouter();
 
@@ -252,10 +224,10 @@ export function DashboardTopNav({ className }: TopNavProps) {
               {navigationItems.map((item) => {
                 const Icon = item.icon;
                 const isActive = isActiveRoute(item.href);
-                
                 return (
-                  <button
+                  <Button
                     key={item.href}
+                    variant={isActive ? "secondary" : "ghost"}
                     onClick={() => router.push(item.href as unknown as Parameters<typeof router.push>[0])}
                     className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                       isActive
@@ -266,7 +238,7 @@ export function DashboardTopNav({ className }: TopNavProps) {
                   >
                     <Icon className="h-4 w-4" />
                     <span>{item.label}</span>
-                  </button>
+                  </Button>
                 );
               })}
             </div>
@@ -281,27 +253,17 @@ export function DashboardTopNav({ className }: TopNavProps) {
             <NotificationBell count={3} className="hidden sm:block" />
 
             {/* User menu */}
-            <div className="relative">
-              <button
-                onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                className="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                aria-expanded={isUserMenuOpen}
-                aria-haspopup="true"
-              >
-                <UserAvatar avatar={mockUser.avatar} name={mockUser.name} size={32} />
-                <span className="hidden sm:block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  {mockUser.name}
-                </span>
-              </button>
-
-              <UserMenu
-                isOpen={isUserMenuOpen}
-                onClose={() => setIsUserMenuOpen(false)}
-              />
+            <div className="relative flex items-center">
+              <UserMenu />
+              {/* <span className="hidden sm:block ml-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                {mockUser.name}
+              </span> */}
             </div>
 
             {/* Mobile menu button */}
-            <button
+            <Button
+              variant="ghost"
+              size="icon"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="md:hidden p-2 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-800 transition-colors"
               aria-expanded={isMobileMenuOpen}
@@ -312,7 +274,7 @@ export function DashboardTopNav({ className }: TopNavProps) {
               ) : (
                 <Menu className="h-5 w-5" />
               )}
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -323,10 +285,10 @@ export function DashboardTopNav({ className }: TopNavProps) {
               {navigationItems.map((item) => {
                 const Icon = item.icon;
                 const isActive = isActiveRoute(item.href);
-                
                 return (
-                  <button
+                  <Button
                     key={item.href}
+                    variant={isActive ? "secondary" : "ghost"}
                     onClick={() => handleMobileNavigation(item.href)}
                     className={`w-full flex items-center space-x-3 px-3 py-2 rounded-md text-base font-medium transition-colors ${
                       isActive
@@ -337,7 +299,7 @@ export function DashboardTopNav({ className }: TopNavProps) {
                   >
                     <Icon className="h-5 w-5" />
                     <span>{item.label}</span>
-                  </button>
+                  </Button>
                 );
               })}
             </div>
