@@ -1,18 +1,18 @@
-import { PlusCircle, MinusCircle, PercentCircle } from 'lucide-react';
+import { PlusCircle, Pizza, PercentCircle } from 'lucide-react';
 import { TopicGrid } from '@/components/features/topic-grid';
 
 const practiceTopics = [
   {
-    title: 'Addition',
-    description: 'Practice basic addition problems',
+    title: 'Addition and Subtraction',
+    description: 'Practice basic addition and subtraction problems',
     icon: PlusCircle,
     color: 'from-green-400 to-blue-500',
     normalColor: 'blue',
   },
   {
-    title: 'Subtraction',
-    description: 'Practice basic subtraction problems',
-    icon: MinusCircle,
+    title: 'Fraction',
+    description: 'Practice basic fraction problems',
+    icon: Pizza,
     color: 'from-pink-500 to-yellow-500',
     normalColor: 'green',
   },

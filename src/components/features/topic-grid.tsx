@@ -1,10 +1,12 @@
 import React from 'react';
+import Image from 'next/image';
 import { LucideIcon } from 'lucide-react';
 
 type Topic = {
   title: string;
   description: string;
   icon?: LucideIcon;
+  iconImage?: string;
   color?: string;
   normalColor?: string;
   onClick?: () => void;
@@ -19,18 +21,28 @@ export function TopicGrid({ topics, variant = 'normal' }: TopicGridProps) {
   if (variant === 'kidFriendly') {
     return (
       <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-        {topics.map(({ title, color, icon: Icon, description }) => (
+        {topics.map(({ title, color, icon: Icon, iconImage, description }) => (
           <div
             key={title}
-            className={`bg-gradient-to-br ${color} transform cursor-pointer rounded-2xl p-6 shadow-lg transition-transform duration-300 ease-in-out hover:scale-105`}
+            className={`transform cursor-pointer rounded-2xl bg-[rgb(183,198,163)] p-6 shadow-lg transition-transform duration-300 ease-in-out hover:scale-105`}
           >
             <div className="flex flex-col items-center">
-              {Icon && (
-                <Icon className="mb-4 h-16 w-16 text-white drop-shadow-lg" />
-              )}
               <h3 className="mb-2 text-center text-2xl font-bold text-white">
                 {title}
               </h3>
+              {iconImage ? (
+                <Image
+                  src={iconImage}
+                  alt={title}
+                  width={64}
+                  height={64}
+                  className="mb-4 object-contain"
+                  style={{ width: '64px', height: '64px' }}
+                  priority
+                />
+              ) : Icon ? (
+                <Icon className="mb-4 h-16 w-16 text-white drop-shadow-lg" />
+              ) : null}
               <p className="text-center text-sm text-white">{description}</p>
             </div>
           </div>
