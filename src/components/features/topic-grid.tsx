@@ -1,20 +1,7 @@
-// Lines 1-10 (existing imports)
 import React from 'react';
 import Image from 'next/image';
 import { LucideIcon } from 'lucide-react';
-import type { TopicResponse } from '@chengkoon/mathpet-api-types';
-
-// NEW: Union type to support both old and new formats
-type LegacyTopic = {
-  id?: number | string;
-  title: string;
-  description: string;
-  icon?: LucideIcon;
-  iconImage?: string;
-  color?: string;
-  normalColor?: string;
-  onClick?: () => void;
-};
+import type { TopicResponse, PackResponse } from '@chengkoon/mathpet-api-types';
 
 type ApiTopic = TopicResponse & {
   icon?: LucideIcon;
@@ -24,7 +11,15 @@ type ApiTopic = TopicResponse & {
   onClick?: (topic: TopicResponse) => void;
 };
 
-type Topic = LegacyTopic | ApiTopic;
+type ApiPackTopic = PackResponse & {
+  icon?: LucideIcon | undefined;
+  iconImage?: string | undefined;
+  color?: string;
+  normalColor?: string;
+  onClick?: (pack: PackResponse) => void;
+};
+
+type Topic = ApiTopic | ApiPackTopic;
 
 // Helper function to determine if it's an API topic
 const isApiTopic = (topic: Topic): topic is ApiTopic => {
