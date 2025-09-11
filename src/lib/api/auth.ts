@@ -1,15 +1,6 @@
 import { AuthApi, Configuration } from '@chengkoon/mathpet-api-types';
 import type { LoginRequest, UserResponse } from '@chengkoon/mathpet-api-types';
-
-// API Configuration
-const getApiConfig = () => {
-  return new Configuration({
-    basePath: process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
-};
+import { getApiConfig } from './config';
 
 // Initialize AuthApi
 const authApi = new AuthApi(getApiConfig());
