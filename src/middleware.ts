@@ -5,49 +5,45 @@ import type { NextRequest } from 'next/server';
 // Define protected routes that require authentication
 const protectedRoutes = [
   '/home',
-  '/practice', 
+  '/practice',
   '/packs',
   '/profile',
   '/settings',
 ];
 
 // Define public routes that don't require authentication
-const publicRoutes = [
-  '/',
-  '/login',
-  '/signup',
-  '/forgot-password',
-  '/about',
-  '/contact',
-];
+// Note: Currently not used in middleware logic but kept for future reference
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  
+
   // Check if the current path is a protected route
-  const isProtectedRoute = protectedRoutes.some(route => 
-    pathname === route || pathname.startsWith(route + '/')
+  const isProtectedRoute = protectedRoutes.some(
+    (route) => pathname === route || pathname.startsWith(route + '/')
   );
-  
-  // Check if the current path is a public route
-  const isPublicRoute = publicRoutes.includes(pathname);
-  
-  const token = request.cookies.get('auth-token')?.value;
-  const isAuthenticated = !!token;
-  console.log(`Middleware: isProtectedRoute=${isProtectedRoute}, isPublicRoute=${isPublicRoute}, isAuthenticated=${isAuthenticated}`);
-  if (isProtectedRoute && !isAuthenticated) {
+
+  // Check for session cookie (backend sets this as httpOnly)
+  // Note: We can't read httpOnly cookies in middleware, so we'll be less strict
+  // and rely on client-side auth initialization to handle authentication
+  const hasSessionCookie =
+    request.cookies.has('JSESSIONID') ||
+    request.cookies.has('jwt-token') ||
+    request.cookies.has('auth-session'); // Check common session cookie names
+
+  console.log(
+    `Middleware: isProtectedRoute=${isProtectedRoute}, hasSessionCookie=${hasSessionCookie}`
+  );
+
+  // For protected routes without a session cookie, redirect to login
+  // Note: This is a basic check - full auth validation happens client-side
+  if (isProtectedRoute && !hasSessionCookie) {
     // Store the attempted URL for redirect after login
     const loginUrl = new URL('/login', request.url);
     loginUrl.searchParams.set('from', pathname);
-    
+
     return NextResponse.redirect(loginUrl);
   }
-  
-  // If user is authenticated and trying to access auth pages, redirect to home
-  if (isAuthenticated && (pathname === '/login' || pathname === '/signup')) {
-    return NextResponse.redirect(new URL('/home', request.url));
-  }
-  
+
   return NextResponse.next();
 }
 

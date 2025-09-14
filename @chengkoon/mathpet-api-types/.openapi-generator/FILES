@@ -30,6 +30,7 @@ src/models/ExtractQuestionsJobStatusProgress.ts
 src/models/ExtractQuestionsJobStatusResult.ts
 src/models/Link.ts
 src/models/LoginRequest.ts
+src/models/LogoutResponse.ts
 src/models/MarkAllNotificationsAsRead200Response.ts
 src/models/NotificationResponse.ts
 src/models/PackResponse.ts

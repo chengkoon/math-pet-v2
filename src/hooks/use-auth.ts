@@ -31,10 +31,7 @@ export const useLogin = (options?: UseLoginOptions) => {
       });
       setIsAuthenticated(true);
 
-      // Store JWT token in cookie or localStorage
-      if (data.token) {
-        document.cookie = `auth-token=${data.token}; path=/; max-age=86400; SameSite=Strict`;
-      }
+      // No need to handle JWT tokens - authentication is now cookie-based
 
       // Invalidate relevant queries
       queryClient.invalidateQueries({ queryKey: ['user'] });
@@ -59,6 +56,50 @@ interface UseLogoutOptions {
   onError?: (error: unknown) => void;
 }
 
+// Hook for checking authentication status on app load
+export const useInitializeAuth = () => {
+  const { setUser, setIsAuthenticated } = useAppStore();
+
+  return useMutation({
+    mutationFn: async () => {
+      try {
+        const userData = await authService.getMe();
+        return userData;
+      } catch {
+        // If the request fails (e.g., 401), it means user is not authenticated
+        // We don't throw here to allow graceful handling
+        return null;
+      }
+    },
+    onSuccess: (data) => {
+      if (data) {
+        // User is authenticated, update store
+        setUser({
+          userId: data.userId,
+          username: data.username,
+          email: data.email,
+          firstName: data.firstName,
+          lastName: data.lastName,
+          role: data.role,
+          levelId: data.levelId || undefined,
+        });
+        setIsAuthenticated(true);
+        console.log('Authentication restored from session:', data);
+      } else {
+        // No valid session, ensure user is logged out
+        setUser(null);
+        setIsAuthenticated(false);
+      }
+    },
+    onError: (error) => {
+      console.log('No active session found:', error);
+      // Ensure user is logged out on error
+      setUser(null);
+      setIsAuthenticated(false);
+    },
+  });
+};
+
 export const useLogout = (options?: UseLogoutOptions) => {
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -66,13 +107,8 @@ export const useLogout = (options?: UseLogoutOptions) => {
 
   return useMutation({
     mutationFn: async () => {
-      // Clear the auth token from cookies
-      document.cookie =
-        'auth-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Strict';
-
-      // Clear any other auth-related cookies if they exist
-      document.cookie =
-        'refresh-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Strict';
+      // Call the backend logout endpoint to clear the session cookie
+      await authService.logout();
     },
     onSuccess: () => {
       // Clear user data and authentication state
@@ -90,7 +126,13 @@ export const useLogout = (options?: UseLogoutOptions) => {
     },
     onError: (error) => {
       console.error('Logout failed:', error);
+      // Even if logout fails on backend, clear local state
+      logout();
+      queryClient.clear();
+
       options?.onError?.(error);
+      toast.error('Logout failed, but you have been signed out locally');
+      router.push('/');
     },
   });
 };

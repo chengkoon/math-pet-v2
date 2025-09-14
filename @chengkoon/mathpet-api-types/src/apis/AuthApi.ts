@@ -17,6 +17,7 @@ import * as runtime from '../runtime';
 import type {
   ErrorResponse,
   LoginRequest,
+  LogoutResponse,
   StudentSignupRequest,
   UserResponse,
 } from '../models/index';
@@ -25,6 +26,8 @@ import {
     ErrorResponseToJSON,
     LoginRequestFromJSON,
     LoginRequestToJSON,
+    LogoutResponseFromJSON,
+    LogoutResponseToJSON,
     StudentSignupRequestFromJSON,
     StudentSignupRequestToJSON,
     UserResponseFromJSON,
@@ -45,7 +48,38 @@ export interface RegisterStudentRequest {
 export class AuthApi extends runtime.BaseAPI {
 
     /**
-     * Authenticate user and return user details with JWT token
+     * Retrieve current user\'s data using JWT from httpOnly cookie
+     * Get current user information
+     */
+    async getCurrentUserRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<UserResponse>> {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+
+        let urlPath = `/api/auth/me`;
+
+        const response = await this.request({
+            path: urlPath,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => UserResponseFromJSON(jsonValue));
+    }
+
+    /**
+     * Retrieve current user\'s data using JWT from httpOnly cookie
+     * Get current user information
+     */
+    async getCurrentUser(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<UserResponse> {
+        const response = await this.getCurrentUserRaw(initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Authenticate user and return user details. Sets JWT token as httpOnly cookie.
      * Login to the system
      */
     async loginUserRaw(requestParameters: LoginUserRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<UserResponse>> {
@@ -77,7 +111,7 @@ export class AuthApi extends runtime.BaseAPI {
     }
 
     /**
-     * Authenticate user and return user details with JWT token
+     * Authenticate user and return user details. Sets JWT token as httpOnly cookie.
      * Login to the system
      */
     async loginUser(requestParameters: LoginUserRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<UserResponse> {
@@ -86,7 +120,38 @@ export class AuthApi extends runtime.BaseAPI {
     }
 
     /**
-     * Create a new student account with associated student profile
+     * Clear authentication cookie and logout user
+     * Logout user
+     */
+    async logoutUserRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<LogoutResponse>> {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+
+        let urlPath = `/api/auth/logout`;
+
+        const response = await this.request({
+            path: urlPath,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => LogoutResponseFromJSON(jsonValue));
+    }
+
+    /**
+     * Clear authentication cookie and logout user
+     * Logout user
+     */
+    async logoutUser(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<LogoutResponse> {
+        const response = await this.logoutUserRaw(initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Create a new student account with associated student profile. Sets JWT token as httpOnly cookie.
      * Register a new student user
      */
     async registerStudentRaw(requestParameters: RegisterStudentRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<UserResponse>> {
@@ -118,7 +183,7 @@ export class AuthApi extends runtime.BaseAPI {
     }
 
     /**
-     * Create a new student account with associated student profile
+     * Create a new student account with associated student profile. Sets JWT token as httpOnly cookie.
      * Register a new student user
      */
     async registerStudent(requestParameters: RegisterStudentRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<UserResponse> {

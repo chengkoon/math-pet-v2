@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { QueryProvider } from '@/providers/query-provider';
 import { ThemeProvider } from '@/providers/theme-provider';
+import { AuthInitializer } from '@/components/providers/auth-initializer';
 import { Toaster } from '@/components/ui/sonner';
 import { CardGridVariantProvider } from '@/components/features/card-grid-variant-context';
 import './globals.css';
@@ -28,7 +29,9 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <QueryProvider>
-            <CardGridVariantProvider>{children}</CardGridVariantProvider>
+            <AuthInitializer>
+              <CardGridVariantProvider>{children}</CardGridVariantProvider>
+            </AuthInitializer>
           </QueryProvider>
           <Toaster />
         </ThemeProvider>

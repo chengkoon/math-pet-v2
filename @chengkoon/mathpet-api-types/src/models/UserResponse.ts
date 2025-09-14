@@ -67,12 +67,6 @@ export interface UserResponse {
      * @memberof UserResponse
      */
     message?: string;
-    /**
-     * JWT authentication token
-     * @type {string}
-     * @memberof UserResponse
-     */
-    token?: string;
 }
 
 /**
@@ -100,7 +94,6 @@ export function UserResponseFromJSONTyped(json: any, ignoreDiscriminator: boolea
         'role': json['role'] == null ? undefined : json['role'],
         'levelId': json['levelId'] == null ? undefined : json['levelId'],
         'message': json['message'] == null ? undefined : json['message'],
-        'token': json['token'] == null ? undefined : json['token'],
     };
 }
 
@@ -123,7 +116,6 @@ export function UserResponseToJSONTyped(value?: UserResponse | null, ignoreDiscr
         'role': value['role'],
         'levelId': value['levelId'],
         'message': value['message'],
-        'token': value['token'],
     };
 }
 

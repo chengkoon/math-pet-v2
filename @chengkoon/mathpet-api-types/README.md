@@ -1,4 +1,4 @@
-## @chengkoon/mathpet-api-types@1.0.399
+## @chengkoon/mathpet-api-types@1.0.401
 
 This generator creates TypeScript/JavaScript client that utilizes [Fetch API](https://fetch.spec.whatwg.org/). The generated Node module can be used in the following environments:
 
@@ -36,7 +36,7 @@ navigate to the folder of your consuming project and run one of the following co
 _published:_
 
 ```
-npm install @chengkoon/mathpet-api-types@1.0.399 --save
+npm install @chengkoon/mathpet-api-types@1.0.401 --save
 ```
 
 _unPublished (not recommended):_

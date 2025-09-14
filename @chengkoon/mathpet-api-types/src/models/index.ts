@@ -12,6 +12,7 @@ export * from './ExtractQuestionsJobStatusProgress';
 export * from './ExtractQuestionsJobStatusResult';
 export * from './Link';
 export * from './LoginRequest';
+export * from './LogoutResponse';
 export * from './MarkAllNotificationsAsRead200Response';
 export * from './NotificationResponse';
 export * from './PackResponse';

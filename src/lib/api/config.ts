@@ -1,21 +1,70 @@
 import { Configuration } from '@chengkoon/mathpet-api-types';
 
 export const getApiConfig = () => {
-  let token = '';
-  if (typeof window !== 'undefined') {
-    token =
-      document.cookie
-        .split('; ')
-        .find((row) => row.startsWith('auth-token='))
-        ?.split('=')[1] || '';
-  }
   return new Configuration({
     basePath: process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080',
     headers: {
       'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
+    credentials: 'include', // Enable cookies for authentication
   });
+};
+
+// Custom fetch client for endpoints not yet available in generated API types
+export const createCustomApiClient = () => {
+  const basePath =
+    process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+
+  return {
+    async get<T>(endpoint: string): Promise<T> {
+      const response = await fetch(`${basePath}${endpoint}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        throw new ApiError(
+          response.status,
+          `HTTP ${response.status}: ${response.statusText}`
+        );
+      }
+
+      return response.json();
+    },
+
+    async post<T>(endpoint: string, body?: unknown): Promise<T> {
+      const requestInit: RequestInit = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+      };
+
+      if (body) {
+        requestInit.body = JSON.stringify(body);
+      }
+
+      const response = await fetch(`${basePath}${endpoint}`, requestInit);
+
+      if (!response.ok) {
+        throw new ApiError(
+          response.status,
+          `HTTP ${response.status}: ${response.statusText}`
+        );
+      }
+
+      // Handle responses with no content
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        return response.json();
+      }
+      return {} as T;
+    },
+  };
 };
 
 // Optional: Create typed API client factory for consistency
