@@ -1,5 +1,5 @@
 'use client';
-import { TopicGrid } from '@/components/features/topic-grid';
+import { CardGrid } from '@/components/features/card-grid';
 import { useExamPacks } from '@/hooks/use-exam-packs';
 import { LucideIcon, GraduationCap, BookOpen, Trophy } from 'lucide-react';
 import type { PackResponse } from '@chengkoon/mathpet-api-types';
@@ -91,7 +91,7 @@ export default function TestPage() {
           Choose an exam pack to start practicing
         </p>
 
-        <TopicGrid topics={examPacks} />
+        <CardGrid cards={examPacks} />
       </div>
     </div>
   );

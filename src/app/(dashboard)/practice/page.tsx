@@ -1,5 +1,5 @@
 'use client';
-import { TopicGrid } from '@/components/features/topic-grid';
+import { CardGrid } from '@/components/features/card-grid';
 import { useTopics } from '@/hooks/use-topics';
 
 export default function PracticePage() {
@@ -78,7 +78,7 @@ export default function PracticePage() {
           Choose a topic to start practising
         </p>
 
-        <TopicGrid topics={practiceTopics} variant={gridVariant} />
+        <CardGrid cards={practiceTopics} variant={gridVariant} />
       </div>
     </div>
   );
