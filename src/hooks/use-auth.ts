@@ -18,6 +18,7 @@ export const useLogin = (options?: UseLoginOptions) => {
   return useMutation({
     mutationFn: (credentials: LoginRequest) => authService.login(credentials),
     onSuccess: (data: UserResponse) => {
+      console.log('Login successful:', data);
       // Store user data and authentication state
       setUser({
         userId: data.userId,
@@ -26,6 +27,7 @@ export const useLogin = (options?: UseLoginOptions) => {
         firstName: data.firstName,
         lastName: data.lastName,
         role: data.role,
+        levelId: data.levelId || undefined,
       });
       setIsAuthenticated(true);
 
@@ -41,7 +43,8 @@ export const useLogin = (options?: UseLoginOptions) => {
       options?.onSuccess?.(data);
 
       // Redirect to dashboard or return path
-      const returnTo = new URLSearchParams(window.location.search).get('from') || '/home';
+      const returnTo =
+        new URLSearchParams(window.location.search).get('from') || '/home';
       router.push(returnTo);
     },
     onError: (error) => {
@@ -64,10 +67,12 @@ export const useLogout = (options?: UseLogoutOptions) => {
   return useMutation({
     mutationFn: async () => {
       // Clear the auth token from cookies
-      document.cookie = 'auth-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Strict';
-      
+      document.cookie =
+        'auth-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Strict';
+
       // Clear any other auth-related cookies if they exist
-      document.cookie = 'refresh-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Strict';
+      document.cookie =
+        'refresh-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Strict';
     },
     onSuccess: () => {
       // Clear user data and authentication state
