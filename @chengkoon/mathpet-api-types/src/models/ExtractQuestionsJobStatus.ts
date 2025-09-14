@@ -105,7 +105,8 @@ export const ExtractQuestionsJobStatusStatusEnum = {
     Pending: 'PENDING',
     Processing: 'PROCESSING',
     Completed: 'COMPLETED',
-    Failed: 'FAILED'
+    Failed: 'FAILED',
+    Cancelled: 'CANCELLED'
 } as const;
 export type ExtractQuestionsJobStatusStatusEnum = typeof ExtractQuestionsJobStatusStatusEnum[keyof typeof ExtractQuestionsJobStatusStatusEnum];
 

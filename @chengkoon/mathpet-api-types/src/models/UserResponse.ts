@@ -56,6 +56,12 @@ export interface UserResponse {
      */
     role?: string;
     /**
+     * User's educational level ID (if applicable)
+     * @type {number}
+     * @memberof UserResponse
+     */
+    levelId?: number;
+    /**
      * Success or error message
      * @type {string}
      * @memberof UserResponse
@@ -92,6 +98,7 @@ export function UserResponseFromJSONTyped(json: any, ignoreDiscriminator: boolea
         'firstName': json['firstName'] == null ? undefined : json['firstName'],
         'lastName': json['lastName'] == null ? undefined : json['lastName'],
         'role': json['role'] == null ? undefined : json['role'],
+        'levelId': json['levelId'] == null ? undefined : json['levelId'],
         'message': json['message'] == null ? undefined : json['message'],
         'token': json['token'] == null ? undefined : json['token'],
     };
@@ -114,6 +121,7 @@ export function UserResponseToJSONTyped(value?: UserResponse | null, ignoreDiscr
         'firstName': value['firstName'],
         'lastName': value['lastName'],
         'role': value['role'],
+        'levelId': value['levelId'],
         'message': value['message'],
         'token': value['token'],
     };
