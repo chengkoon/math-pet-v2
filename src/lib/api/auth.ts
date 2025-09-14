@@ -1,10 +1,13 @@
 import { AuthApi } from '@chengkoon/mathpet-api-types';
-import type { LoginRequest, UserResponse } from '@chengkoon/mathpet-api-types';
-import { getApiConfig, createCustomApiClient } from './config';
+import type {
+  LoginRequest,
+  UserResponse,
+  LogoutResponse,
+} from '@chengkoon/mathpet-api-types';
+import { getApiConfig } from './config';
 
 // Initialize AuthApi
 const authApi = new AuthApi(getApiConfig());
-const customApiClient = createCustomApiClient();
 
 // Auth API functions
 export const authService = {
@@ -22,16 +25,16 @@ export const authService = {
 
   async getMe(): Promise<UserResponse> {
     try {
-      return await customApiClient.get<UserResponse>('/api/auth/me');
+      return await authApi.getCurrentUser();
     } catch (error) {
       console.error('Get user info error:', error);
       throw error;
     }
   },
 
-  async logout(): Promise<void> {
+  async logout(): Promise<LogoutResponse> {
     try {
-      await customApiClient.post<void>('/api/auth/logout');
+      return await authApi.logoutUser();
     } catch (error) {
       console.error('Logout error:', error);
       throw error;
