@@ -3,8 +3,6 @@ import { CardGrid } from '@/components/features/card-grid';
 import { useTopics } from '@/hooks/use-topics';
 
 export default function PracticePage() {
-  const gridVariant = 'kidFriendly';
-
   const {
     data: topicsData,
     isLoading,
@@ -78,7 +76,7 @@ export default function PracticePage() {
           Choose a topic to start practising
         </p>
 
-        <CardGrid cards={practiceTopics} variant={gridVariant} />
+        <CardGrid cards={practiceTopics} />
       </div>
     </div>
   );

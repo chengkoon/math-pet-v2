@@ -1,4 +1,5 @@
 import React from 'react';
+import { useCardGridVariant } from './card-grid-variant-context';
 import Image from 'next/image';
 import { LucideIcon } from 'lucide-react';
 import type { TopicResponse, PackResponse } from '@chengkoon/mathpet-api-types';
@@ -15,7 +16,7 @@ type Pack = PackResponse & {
   icon?: LucideIcon | undefined;
   iconImage?: string | undefined;
   color?: string;
-  normalColor?: string;
+  normalColor?: string | undefined;
   onClick?: (pack: PackResponse) => void;
 };
 
@@ -46,17 +47,16 @@ const getDefaultStyling = (index: number) => {
 
 type CardGridProps = {
   cards: Card[];
-  variant?: 'kidFriendly' | 'normal';
 };
 
-export function CardGrid({ cards, variant = 'normal' }: CardGridProps) {
+export function CardGrid({ cards }: CardGridProps) {
+  const variant = useCardGridVariant();
   if (variant === 'kidFriendly') {
     return (
       <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-        {cards.map((card, index) => {
+        {cards.map((card) => {
           const isTopicType = isTopic(card);
           const key = isTopicType ? card.id : card.title;
-          const defaultStyling = getDefaultStyling(index);
           const Icon = card.icon;
 
           // For API topics, use description or generate one
@@ -70,7 +70,11 @@ export function CardGrid({ cards, variant = 'normal' }: CardGridProps) {
               key={key}
               onClick={() => {
                 if (card.onClick) {
-                  isTopicType ? card.onClick(card) : card.onClick();
+                  if (isTopicType) {
+                    card.onClick(card);
+                  } else {
+                    card.onClick(card);
+                  }
                 }
               }}
               className={`transform cursor-pointer rounded-2xl bg-[rgb(183,198,163)] p-6 shadow-lg transition-transform duration-300 ease-in-out hover:scale-105 ${
@@ -84,7 +88,7 @@ export function CardGrid({ cards, variant = 'normal' }: CardGridProps) {
                 {card.iconImage ? (
                   <Image
                     src={card.iconImage}
-                    alt={card.title}
+                    alt={card.title ?? ''}
                     width={64}
                     height={64}
                     className="mb-4 object-contain"
@@ -122,7 +126,11 @@ export function CardGrid({ cards, variant = 'normal' }: CardGridProps) {
             key={key}
             onClick={() => {
               if (card.onClick) {
-                isTopicType ? card.onClick(card) : card.onClick();
+                if (isTopicType) {
+                  card.onClick(card);
+                } else {
+                  card.onClick(card);
+                }
               }
             }}
             className={`bg-${normalColor}-50 dark:bg-${normalColor}-900/20 rounded-lg border p-6 border-${normalColor}-200 dark:border-${normalColor}-800 ${

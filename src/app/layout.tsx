@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google';
 import { QueryProvider } from '@/providers/query-provider';
 import { ThemeProvider } from '@/providers/theme-provider';
 import { Toaster } from '@/components/ui/sonner';
+import { CardGridVariantProvider } from '@/components/features/card-grid-variant-context';
 import './globals.css';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -27,7 +28,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <QueryProvider>
-            {children}
+            <CardGridVariantProvider>{children}</CardGridVariantProvider>
           </QueryProvider>
           <Toaster />
         </ThemeProvider>
