@@ -14,8 +14,9 @@ import {
   BookOpen,
   Flag,
   CheckCircle2,
-  XCircle,
   Bookmark,
+  Grid3X3,
+  X,
 } from 'lucide-react';
 
 // Hardcoded test data matching your database structure
@@ -179,7 +180,8 @@ export default function QuestionViewer() {
     Record<number, QuestionStatus>
   >({});
   const [timeRemaining, setTimeRemaining] = useState(90 * 60); // 90 minutes in seconds
-  const [showQuestionPalette, setShowQuestionPalette] = useState(false);
+  const [showMobileQuestionPalette, setShowMobileQuestionPalette] =
+    useState(false);
 
   const currentQuestion = mockQuestionData.questions[currentQuestionIndex];
   const progress =
@@ -219,7 +221,7 @@ export default function QuestionViewer() {
 
   const navigateToQuestion = (index: number) => {
     setCurrentQuestionIndex(index);
-    setShowQuestionPalette(false);
+    setShowMobileQuestionPalette(false);
   };
 
   const nextQuestion = () => {
@@ -301,21 +303,6 @@ export default function QuestionViewer() {
                   {mockQuestionData.examInfo.totalQuestions}
                 </p>
               </div>
-            </div>
-
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-300">
-                <Clock className="h-4 w-4" />
-                <span className="font-mono">{formatTime(timeRemaining)}</span>
-              </div>
-
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowQuestionPalette(!showQuestionPalette)}
-              >
-                Question Palette
-              </Button>
             </div>
           </div>
         </div>
@@ -495,8 +482,8 @@ export default function QuestionViewer() {
             </div>
           </div>
 
-          {/* Question Palette Sidebar */}
-          <div className="lg:col-span-1">
+          {/* Question Palette Sidebar - Hidden on Mobile */}
+          <div className="hidden lg:col-span-1 lg:block">
             <Card className="sticky top-24">
               <CardHeader>
                 <h3 className="font-semibold text-gray-900 dark:text-white">
@@ -584,6 +571,163 @@ export default function QuestionViewer() {
               </CardContent>
             </Card>
           </div>
+        </div>
+      </div>
+
+      {/* Mobile Question Palette - Floating Action Button */}
+      <div className="fixed right-6 bottom-6 z-20 lg:hidden">
+        <Button
+          onClick={() => setShowMobileQuestionPalette(true)}
+          className="h-14 w-14 rounded-full bg-blue-600 shadow-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300"
+          size="sm"
+        >
+          <Grid3X3 className="h-6 w-6 text-white" />
+        </Button>
+      </div>
+
+      {/* Mobile Question Palette - Bottom Sheet Modal */}
+      {showMobileQuestionPalette && (
+        <div className="fixed inset-0 z-50 lg:hidden">
+          {/* Backdrop */}
+          <div
+            className="bg-opacity-50 absolute inset-0 bg-black"
+            onClick={() => setShowMobileQuestionPalette(false)}
+          />
+
+          {/* Bottom Sheet */}
+          <div className="absolute right-0 bottom-0 left-0 max-h-[80vh] overflow-hidden rounded-t-2xl bg-white dark:bg-gray-800">
+            {/* Handle Bar */}
+            <div className="flex items-center justify-center py-4">
+              <div className="h-1 w-12 rounded-full bg-gray-300 dark:bg-gray-600" />
+            </div>
+
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-gray-200 px-6 pb-4 dark:border-gray-700">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                Paper Overview
+              </h3>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowMobileQuestionPalette(false)}
+              >
+                <X className="h-5 w-5" />
+              </Button>
+            </div>
+
+            {/* Content - Scrollable */}
+            <div className="max-h-[60vh] overflow-y-auto px-6 py-4">
+              {/* Section Information */}
+              <div className="mb-6 space-y-3">
+                {mockQuestionData.examInfo.sections.map((section, index) => (
+                  <div key={index} className="text-sm">
+                    <p className="font-medium text-gray-900 dark:text-white">
+                      {section.name}
+                    </p>
+                    <p className="text-gray-500 dark:text-gray-400">
+                      Questions {section.questions} • {section.marks} marks
+                    </p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Question Grid */}
+              <div className="grid grid-cols-6 gap-3">
+                {Array.from(
+                  { length: mockQuestionData.examInfo.totalQuestions },
+                  (_, index) => (
+                    <Button
+                      key={index}
+                      variant={
+                        index === currentQuestionIndex ? 'default' : 'outline'
+                      }
+                      size="sm"
+                      onClick={() => navigateToQuestion(index)}
+                      className={`relative h-12 w-12 p-0 ${
+                        index !== currentQuestionIndex
+                          ? getQuestionStatusColor(index)
+                          : ''
+                      }`}
+                    >
+                      <span className="text-sm font-medium">{index + 1}</span>
+                      {index !== currentQuestionIndex && (
+                        <div className="absolute -top-1 -right-1">
+                          {getQuestionStatusIcon(index)}
+                        </div>
+                      )}
+                    </Button>
+                  )
+                )}
+              </div>
+
+              {/* Legend */}
+              <div className="mt-6 grid grid-cols-2 gap-2 text-xs">
+                <div className="flex items-center space-x-2">
+                  <div className="h-3 w-3 rounded border border-green-300 bg-green-100"></div>
+                  <span className="text-gray-600 dark:text-gray-400">
+                    Answered
+                  </span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="h-3 w-3 rounded border border-orange-300 bg-orange-100"></div>
+                  <span className="text-gray-600 dark:text-gray-400">
+                    Flagged
+                  </span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="h-3 w-3 rounded border border-gray-200 bg-gray-50"></div>
+                  <span className="text-gray-600 dark:text-gray-400">
+                    Not Answered
+                  </span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <div className="h-3 w-3 rounded border border-blue-700 bg-blue-600"></div>
+                  <span className="text-gray-600 dark:text-gray-400">
+                    Current
+                  </span>
+                </div>
+              </div>
+
+              {/* Submit Button */}
+              <Button className="mt-6 w-full" variant="destructive">
+                Submit Exam
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Mobile Bottom Navigation Bar */}
+      <div className="fixed right-0 bottom-0 left-0 z-10 border-t border-gray-200 bg-white px-4 py-2 lg:hidden dark:border-gray-700 dark:bg-gray-800">
+        <div className="flex items-center justify-between">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={previousQuestion}
+            disabled={currentQuestionIndex === 0}
+            className="flex-1"
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </Button>
+
+          <div className="flex flex-1 items-center justify-center space-x-2">
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              {currentQuestionIndex + 1} /{' '}
+              {mockQuestionData.examInfo.totalQuestions}
+            </span>
+          </div>
+
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={nextQuestion}
+            disabled={
+              currentQuestionIndex === mockQuestionData.questions.length - 1
+            }
+            className="flex-1"
+          >
+            <ChevronRight className="h-5 w-5" />
+          </Button>
         </div>
       </div>
     </div>
