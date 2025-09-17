@@ -266,7 +266,30 @@ export default function QuestionViewer() {
       {/* Header */}
       <div className="sticky top-0 z-10 border-b border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex h-16 items-center justify-between">
+          {/* Mobile layout - stacked vertically */}
+          <div className="block space-y-2 py-3 sm:hidden">
+            <div className="flex items-center justify-between">
+              <div className="flex min-w-0 flex-1 items-center space-x-2">
+                <BookOpen className="h-5 w-5 flex-shrink-0 text-blue-600" />
+                <h1 className="truncate text-base font-semibold text-gray-900 dark:text-white">
+                  {mockQuestionData.examInfo.title}
+                </h1>
+              </div>
+              <div className="ml-4 flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-300">
+                <Clock className="h-4 w-4" />
+                <span className="font-mono">{formatTime(timeRemaining)}</span>
+              </div>
+            </div>
+            <div className="flex items-center justify-center">
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Question {currentQuestionIndex + 1} of{' '}
+                {mockQuestionData.examInfo.totalQuestions}
+              </p>
+            </div>
+          </div>
+
+          {/* Desktop layout - horizontal */}
+          <div className="hidden h-16 items-center justify-between sm:flex">
             <div className="flex items-center space-x-4">
               <BookOpen className="h-6 w-6 text-blue-600" />
               <div>
@@ -477,7 +500,7 @@ export default function QuestionViewer() {
             <Card className="sticky top-24">
               <CardHeader>
                 <h3 className="font-semibold text-gray-900 dark:text-white">
-                  Question Overview
+                  Paper Overview
                 </h3>
               </CardHeader>
               <CardContent>
