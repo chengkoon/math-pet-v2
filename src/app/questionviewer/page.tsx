@@ -282,12 +282,6 @@ export default function QuestionViewer() {
                 <span className="font-mono">{formatTime(timeRemaining)}</span>
               </div>
             </div>
-            <div className="flex items-center justify-center">
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                Question {currentQuestionIndex + 1} of{' '}
-                {mockQuestionData.examInfo.totalQuestions}
-              </p>
-            </div>
           </div>
 
           {/* Desktop layout - horizontal */}
@@ -298,10 +292,6 @@ export default function QuestionViewer() {
                 <h1 className="text-lg font-semibold text-gray-900 dark:text-white">
                   {mockQuestionData.examInfo.title}
                 </h1>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Question {currentQuestionIndex + 1} of{' '}
-                  {mockQuestionData.examInfo.totalQuestions}
-                </p>
               </div>
             </div>
           </div>
@@ -574,14 +564,18 @@ export default function QuestionViewer() {
         </div>
       </div>
 
-      {/* Mobile Question Palette - Floating Action Button */}
+      {/* Mobile Question Palette - Unified Floating Action Button */}
       <div className="fixed right-6 bottom-6 z-20 lg:hidden">
         <Button
           onClick={() => setShowMobileQuestionPalette(true)}
-          className="h-14 w-14 rounded-full bg-blue-600 shadow-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300"
+          className="flex h-16 w-16 flex-col items-center justify-center rounded-full bg-blue-600 p-2 shadow-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300"
           size="sm"
         >
-          <Grid3X3 className="h-6 w-6 text-white" />
+          <span className="text-xs leading-none font-bold text-white">
+            {currentQuestionIndex + 1}/
+            {mockQuestionData.examInfo.totalQuestions}
+          </span>
+          <Grid3X3 className="mt-1 h-4 w-4 text-white" />
         </Button>
       </div>
 
@@ -696,40 +690,6 @@ export default function QuestionViewer() {
           </div>
         </div>
       )}
-
-      {/* Mobile Bottom Navigation Bar */}
-      <div className="fixed right-0 bottom-0 left-0 z-10 border-t border-gray-200 bg-white px-4 py-2 lg:hidden dark:border-gray-700 dark:bg-gray-800">
-        <div className="flex items-center justify-between">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={previousQuestion}
-            disabled={currentQuestionIndex === 0}
-            className="flex-1"
-          >
-            <ChevronLeft className="h-5 w-5" />
-          </Button>
-
-          <div className="flex flex-1 items-center justify-center space-x-2">
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-              {currentQuestionIndex + 1} /{' '}
-              {mockQuestionData.examInfo.totalQuestions}
-            </span>
-          </div>
-
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={nextQuestion}
-            disabled={
-              currentQuestionIndex === mockQuestionData.questions.length - 1
-            }
-            className="flex-1"
-          >
-            <ChevronRight className="h-5 w-5" />
-          </Button>
-        </div>
-      </div>
     </div>
   );
 }
