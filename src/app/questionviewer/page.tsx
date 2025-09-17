@@ -10,7 +10,6 @@ import { Separator } from '@/components/ui/separator';
 import {
   ChevronLeft,
   ChevronRight,
-  Clock,
   BookOpen,
   Flag,
   CheckCircle2,
@@ -277,10 +276,6 @@ export default function QuestionViewer() {
                 <h1 className="truncate text-base font-semibold text-gray-900 dark:text-white">
                   {mockQuestionData.examInfo.title}
                 </h1>
-              </div>
-              <div className="ml-4 flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-300">
-                <Clock className="h-4 w-4" />
-                <span className="font-mono">{formatTime(timeRemaining)}</span>
               </div>
             </div>
           </div>
