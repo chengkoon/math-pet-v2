@@ -15,7 +15,6 @@ import {
   Flag,
   CheckCircle2,
   Bookmark,
-  Grid3X3,
   X,
 } from 'lucide-react';
 
@@ -259,6 +258,8 @@ export default function QuestionViewer() {
         return 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100';
     }
   };
+
+  const answeredCount = Object.keys(selectedAnswers).length;
 
   const isMCQ =
     currentQuestion?.components && currentQuestion.components.length > 0;
@@ -565,17 +566,23 @@ export default function QuestionViewer() {
       </div>
 
       {/* Mobile Question Palette - Unified Floating Action Button */}
-      <div className="fixed right-6 bottom-6 z-20 lg:hidden">
+      <div className="fixed right-4 bottom-4 z-20 lg:hidden">
         <Button
           onClick={() => setShowMobileQuestionPalette(true)}
-          className="flex h-16 w-16 flex-col items-center justify-center rounded-full bg-blue-600 p-2 shadow-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300"
+          className="h-auto min-w-0 rounded-2xl bg-blue-600 px-4 py-3 shadow-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700"
           size="sm"
         >
-          <span className="text-xs leading-none font-bold text-white">
-            {currentQuestionIndex + 1}/
-            {mockQuestionData.examInfo.totalQuestions}
-          </span>
-          <Grid3X3 className="mt-1 h-4 w-4 text-white" />
+          <div className="flex flex-col items-center space-y-1 text-white">
+            {/* Progress and current question */}
+            <div className="flex items-center space-x-2 text-sm font-semibold">
+              <span>
+                Q{currentQuestionIndex + 1}/
+                {mockQuestionData.examInfo.totalQuestions}
+              </span>
+              <span className="text-blue-200">•</span>
+              <span className="text-xs">{answeredCount} answered</span>
+            </div>
+          </div>
         </Button>
       </div>
 
