@@ -2,6 +2,7 @@
 
 import { use } from 'react';
 import { usePackStructure } from '@/hooks/use-pack-structure';
+import { useStartPracticeSession } from '@/hooks/use-practice';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import {
@@ -26,6 +27,21 @@ export default function PackDetailsPage({ params }: PackDetailsPageProps) {
   const { id } = use(params);
   const router = useRouter();
   const { data: packStructure, isLoading, error } = usePackStructure(id);
+  const startPracticeSessionMutation = useStartPracticeSession();
+
+  const handleStartPaper = async () => {
+    try {
+      const response = await startPracticeSessionMutation.mutateAsync({
+        packId: id,
+      });
+
+      // Navigate to the practice session page
+      router.push(`/session/${response.id}`);
+    } catch (error) {
+      console.error('Failed to start practice session:', error);
+      // Error is already handled by the mutation hook with toast
+    }
+  };
 
   if (isLoading) {
     return (
@@ -137,12 +153,12 @@ export default function PackDetailsPage({ params }: PackDetailsPageProps) {
                       )}
                       <Button
                         className="mt-4 w-full"
-                        onClick={() => {
-                          // TODO: Navigate to paper practice or exam mode
-                          console.log('Starting paper:', paper.id, paper.title);
-                        }}
+                        disabled={startPracticeSessionMutation.isPending}
+                        onClick={() => handleStartPaper()}
                       >
-                        Start Paper
+                        {startPracticeSessionMutation.isPending
+                          ? 'Starting...'
+                          : 'Start Paper'}
                       </Button>
                     </div>
                   </CardContent>
