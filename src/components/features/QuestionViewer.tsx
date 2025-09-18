@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect } from 'react';
-import { BookOpen, Clock } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { ArrowLeft, BookOpen, Clock } from 'lucide-react';
 import {
   usePracticeSession,
   usePracticeSessionQuestion,
@@ -172,9 +173,21 @@ function QuestionViewer({ sessionId, onComplete }: QuestionViewerProps) {
           <div className="flex h-16 items-center justify-between">
             <div className="flex items-center space-x-4">
               <BookOpen className="h-6 w-6 text-blue-600" />
-              <h1 className="text-lg font-semibold text-gray-900 dark:text-white">
-                {session.packTitle || 'Practice Session'}
-              </h1>
+              <div className="flex items-center space-x-3">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => window.history.back()}
+                  className="-ml-2 flex items-center text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
+                >
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  Back to Pack
+                </Button>
+                <div className="h-4 w-px bg-gray-300 dark:bg-gray-600" />
+                <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                  {session.packTitle}
+                </h1>
+              </div>
             </div>
             {session.totalTimeSpentSeconds &&
               session.totalTimeSpentSeconds > 0 && (
