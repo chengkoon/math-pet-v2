@@ -168,37 +168,53 @@ function QuestionViewer({ sessionId, onComplete }: QuestionViewerProps) {
       <SkipLinks />
 
       {/* Header - Simplified */}
-      <div className="sticky top-0 z-10 border-b border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
+      <header className="sticky top-0 z-10 border-b border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between">
+            {/* Left section with back button and title */}
             <div className="flex items-center space-x-4">
-              <BookOpen className="h-6 w-6 text-blue-600" />
-              <div className="flex items-center space-x-3">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => window.history.back()}
-                  className="-ml-2 flex items-center text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
-                >
-                  <ArrowLeft className="mr-2 h-4 w-4" />
-                  Back to Pack
-                </Button>
-                <div className="h-4 w-px bg-gray-300 dark:bg-gray-600" />
-                <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                  {session.packTitle}
-                </h1>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => window.history.back()}
+                className="flex items-center space-x-2 text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-100"
+                aria-label="Go back to pack overview"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                <span className="hidden sm:inline">Back to Pack</span>
+                <span className="sm:hidden">Back</span>
+              </Button>
+
+              <div
+                className="h-6 w-px bg-gray-300 dark:bg-gray-600"
+                aria-hidden="true"
+              />
+
+              <div className="flex items-center space-x-2">
+                <BookOpen className="h-5 w-5 text-blue-600" />
+                <div>
+                  <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                    {session.packTitle}
+                  </h1>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    Question {currentQuestionIndex + 1} of{' '}
+                    {session.totalQuestions}
+                  </p>
+                </div>
               </div>
             </div>
-            {session.totalTimeSpentSeconds &&
+
+            {/* Right section with timer */}
+            {/* {session.totalTimeSpentSeconds &&
               session.totalTimeSpentSeconds > 0 && (
-                <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                  <Clock className="mr-1 h-4 w-4" />
-                  Time: {formatTime(session.totalTimeSpentSeconds)}
+                <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
+                  <Clock className="h-4 w-4" />
+                  <span>Time: {formatTime(session.totalTimeSpentSeconds)}</span>
                 </div>
-              )}
+              )} */}
           </div>
         </div>
-      </div>
+      </header>
 
       {/* Main Content */}
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
