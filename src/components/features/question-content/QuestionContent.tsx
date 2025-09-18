@@ -1,0 +1,219 @@
+'use client';
+
+import { useCallback } from 'react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Flag } from 'lucide-react';
+import Image from 'next/image';
+import type { PracticeQuestionResponse } from '@chengkoon/mathpet-api-types';
+
+interface QuestionContentProps {
+  question: PracticeQuestionResponse | undefined;
+  questionIndex: number;
+  totalQuestions: number;
+  mcqAnswer: number | undefined;
+  shortAnswer: string;
+  questionStatus: 'unanswered' | 'answered' | 'flagged';
+  isSubmittingAnswer: boolean;
+  onMcqAnswerChange: (optionIndex: number) => void;
+  onShortAnswerChange: (answer: string) => void;
+  onShortAnswerSubmit: () => void;
+  onFlagToggle: () => void;
+}
+
+/**
+ * QuestionContent - Atomic component for question display
+ * Handles MCQ options, short answer input, and question text rendering
+ * Does NOT handle navigation or session management
+ */
+export const QuestionContent = ({
+  question,
+  questionIndex,
+  totalQuestions,
+  mcqAnswer,
+  shortAnswer,
+  questionStatus,
+  isSubmittingAnswer,
+  onMcqAnswerChange,
+  onShortAnswerChange,
+  onShortAnswerSubmit,
+  onFlagToggle,
+}: QuestionContentProps) => {
+  // Get MCQ options with proper sorting and filtering
+  const mcqOptions =
+    question?.components
+      ?.filter((component) => component.componentType === 'MCQ_OPTION')
+      .sort((a, b) => (a.componentOrder ?? 0) - (b.componentOrder ?? 0)) ?? [];
+
+  // Handle MCQ selection with proper type safety - MUST be called unconditionally
+  const handleMcqSelect = useCallback(
+    (value: string) => {
+      const optionIndex = parseInt(value, 10);
+      if (
+        !isNaN(optionIndex) &&
+        optionIndex >= 0 &&
+        optionIndex < mcqOptions.length
+      ) {
+        onMcqAnswerChange(optionIndex);
+      }
+    },
+    [onMcqAnswerChange, mcqOptions.length]
+  );
+
+  // Handle textarea change - MUST be called unconditionally
+  const handleTextareaChange = useCallback(
+    (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+      onShortAnswerChange(e.target.value);
+    },
+    [onShortAnswerChange]
+  );
+
+  // Type safety checks - AFTER hooks are called
+  if (!question?.question) {
+    return (
+      <Card>
+        <CardContent className="p-6">
+          <p className="text-gray-500 dark:text-gray-400">
+            Question not available
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Calculate progress with proper null checks
+  const progress =
+    totalQuestions > 0 ? ((questionIndex + 1) / totalQuestions) * 100 : 0;
+
+  // Determine if this is an MCQ question with proper type safety
+  const isMCQ = Boolean(
+    question.components?.some((c) => c.componentType === 'MCQ_OPTION')
+  );
+
+  return (
+    <Card>
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <Badge variant="secondary">Question {questionIndex + 1}</Badge>
+            {question.question.marks && (
+              <Badge variant="outline">
+                {question.question.marks} mark
+                {question.question.marks !== 1 ? 's' : ''}
+              </Badge>
+            )}
+            {isMCQ && <Badge variant="outline">Multiple Choice</Badge>}
+          </div>
+
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onFlagToggle}
+            className={questionStatus === 'flagged' ? 'text-orange-500' : ''}
+          >
+            <Flag className="mr-1 h-4 w-4" />
+            {questionStatus === 'flagged' ? 'Flagged' : 'Flag'}
+          </Button>
+        </div>
+        <Progress value={progress} className="mt-2 w-full" />
+      </CardHeader>
+
+      <CardContent className="space-y-6">
+        {/* Question Text */}
+        <div className="prose prose-sm dark:prose-invert max-w-none">
+          <p className="text-base leading-relaxed">
+            {question.question.questionText || 'Question text not available'}
+          </p>
+        </div>
+
+        {/* MCQ Options */}
+        {isMCQ && (
+          <div className="space-y-3">
+            <RadioGroup
+              value={mcqAnswer?.toString() ?? ''}
+              onValueChange={handleMcqSelect}
+            >
+              {mcqOptions.map((option, index) => (
+                <div
+                  key={option.id ?? `option-${index}`}
+                  className="flex items-start space-x-3 rounded-lg border border-gray-200 p-4 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800"
+                >
+                  <RadioGroupItem
+                    value={index.toString()}
+                    id={`option-${index}`}
+                    className="mt-1"
+                  />
+                  <Label
+                    htmlFor={`option-${index}`}
+                    className="flex-1 cursor-pointer"
+                  >
+                    <div className="flex items-center space-x-2">
+                      <span className="font-medium text-gray-700 dark:text-gray-300">
+                        ({option.componentOrder ?? index + 1})
+                      </span>
+                      <div className="text-gray-900 dark:text-white">
+                        {option.isImageOption && option.imageUrl ? (
+                          <Image
+                            src={option.imageUrl}
+                            alt={`Option ${option.componentOrder ?? index + 1}`}
+                            width={200}
+                            height={128}
+                            className="max-h-32 object-contain"
+                          />
+                        ) : (
+                          <span>
+                            {option.contentText ?? 'Option text not available'}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </Label>
+                </div>
+              ))}
+            </RadioGroup>
+          </div>
+        )}
+
+        {/* Short Answer Area */}
+        {!isMCQ && (
+          <div className="space-y-4">
+            <div className="rounded-lg border border-gray-300 bg-gray-50 p-4 dark:border-gray-600 dark:bg-gray-800">
+              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Your Answer:
+              </label>
+              <Textarea
+                className="min-h-32 resize-none"
+                placeholder="Write your answer here..."
+                value={shortAnswer}
+                onChange={handleTextareaChange}
+              />
+              <Button
+                className="mt-2"
+                onClick={onShortAnswerSubmit}
+                disabled={!shortAnswer.trim() || isSubmittingAnswer}
+              >
+                {isSubmittingAnswer ? 'Submitting...' : 'Submit Answer'}
+              </Button>
+            </div>
+
+            {/* Working Space */}
+            <div className="rounded-lg border border-gray-300 bg-gray-50 p-4 dark:border-gray-600 dark:bg-gray-800">
+              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Working Space (Optional):
+              </label>
+              <div className="h-40 w-full rounded border border-gray-200 bg-white dark:border-gray-600 dark:bg-gray-700">
+                {/* TODO: This could be enhanced with a drawing canvas or rich text editor */}
+                <div className="bg-dot-pattern h-full w-full opacity-20"></div>
+              </div>
+            </div>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+};
