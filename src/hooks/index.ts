@@ -3,3 +3,4 @@ export * from './use-auth';
 export * from './use-exam-packs';
 export * from './use-topics';
 export * from './use-practice';
+export * from './use-pack-structure';

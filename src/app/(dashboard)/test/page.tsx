@@ -2,9 +2,12 @@
 import { CardGrid } from '@/components/features/card-grid';
 import { useExamPacks } from '@/hooks/use-exam-packs';
 import { LucideIcon, GraduationCap, BookOpen, Trophy } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 import type { PackResponse } from '@chengkoon/mathpet-api-types';
 
 export default function TestPage() {
+  const router = useRouter();
   const {
     data: examPacksData,
     isLoading,
@@ -32,13 +35,17 @@ export default function TestPage() {
         ...pack,
         icon: icons[index % icons.length],
         normalColor: colors[index % colors.length],
-        onClick: (selectedPack: typeof pack) => {
-          // TODO: Navigate to exam pack practice session
-          console.log(
-            'Starting exam pack:',
-            selectedPack.id,
-            selectedPack.title
-          );
+        onClick: async (selectedPack: typeof pack) => {
+          try {
+            // Fetch pack structure first to ensure it exists and is valid
+            toast.info(`Loading pack: ${selectedPack.title}...`);
+
+            // Navigate to pack details page - the page will handle structure loading
+            router.push(`/packs/${selectedPack.id}`);
+          } catch (error) {
+            console.error('Error accessing pack:', error);
+            toast.error('Failed to load pack structure. Please try again.');
+          }
         },
       };
     }) || [];
