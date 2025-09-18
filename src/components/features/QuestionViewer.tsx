@@ -18,7 +18,10 @@ import {
   announceQuestionChange,
   useKeyboardNavigation,
 } from './accessibility/a11y-utils';
-import { QuestionViewerSkeleton } from './skeleton/QuestionViewerSkeleton';
+import {
+  QuestionViewerSkeleton,
+  QuestionContentSkeleton,
+} from './skeleton/QuestionViewerSkeleton';
 
 interface QuestionViewerProps {
   sessionId: string;
@@ -94,8 +97,6 @@ function QuestionViewer({ sessionId, onComplete }: QuestionViewerProps) {
       },
     });
 
-  const isLoading = sessionLoading || questionLoading;
-
   // Format time helper
   const formatTime = (seconds: number) => {
     const hours = Math.floor(seconds / 3600);
@@ -136,8 +137,8 @@ function QuestionViewer({ sessionId, onComplete }: QuestionViewerProps) {
     }
   };
 
-  // ✅ PERFORMANCE: Optimized loading skeleton
-  if (isLoading) {
+  // ✅ PERFORMANCE: Only show full skeleton when session is loading
+  if (sessionLoading) {
     return <QuestionViewerSkeleton />;
   }
 
@@ -196,23 +197,27 @@ function QuestionViewer({ sessionId, onComplete }: QuestionViewerProps) {
               role="main"
               aria-label="Question content"
             >
-              <QuestionContent
-                question={currentQuestion}
-                questionIndex={currentQuestionIndex}
-                totalQuestions={session.totalQuestions}
-                mcqAnswer={mcqAnswers[currentQuestionIndex]}
-                shortAnswer={shortAnswers[currentQuestionIndex] || ''}
-                questionStatus={
-                  questionStatuses[currentQuestionIndex] || 'unanswered'
-                }
-                isSubmittingAnswer={isSubmittingAnswer}
-                onMcqAnswerChange={handleMcqAnswerChange}
-                onShortAnswerChange={(answer) =>
-                  answers.updateShortAnswer(currentQuestionIndex, answer)
-                }
-                onShortAnswerSubmit={handleShortAnswerSubmit}
-                onFlagToggle={handleFlagToggle}
-              />
+              {questionLoading ? (
+                <QuestionContentSkeleton />
+              ) : (
+                <QuestionContent
+                  question={currentQuestion}
+                  questionIndex={currentQuestionIndex}
+                  totalQuestions={session.totalQuestions}
+                  mcqAnswer={mcqAnswers[currentQuestionIndex]}
+                  shortAnswer={shortAnswers[currentQuestionIndex] || ''}
+                  questionStatus={
+                    questionStatuses[currentQuestionIndex] || 'unanswered'
+                  }
+                  isSubmittingAnswer={isSubmittingAnswer}
+                  onMcqAnswerChange={handleMcqAnswerChange}
+                  onShortAnswerChange={(answer) =>
+                    answers.updateShortAnswer(currentQuestionIndex, answer)
+                  }
+                  onShortAnswerSubmit={handleShortAnswerSubmit}
+                  onFlagToggle={handleFlagToggle}
+                />
+              )}
 
               <nav
                 id="question-navigation"
