@@ -1,11 +1,12 @@
 'use client';
 
-import { useCallback } from 'react';
+import { useCallback, useMemo, memo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { CheckCircle2, Flag, Clock } from 'lucide-react';
 import type { PracticeSessionResponse } from '@chengkoon/mathpet-api-types';
+import VirtualQuestionGrid from './VirtualQuestionGrid';
 
 interface QuestionStatuses {
   [questionIndex: number]: 'unanswered' | 'answered' | 'flagged';
@@ -20,17 +21,22 @@ interface QuestionPaletteProps {
 }
 
 /**
- * QuestionPalette - Desktop sidebar component for question overview
+ * QuestionPalette - Desktop sidebar component for question overview (OPTIMIZED)
  * Shows session info, question grid, and complete session button
- * Optimized for desktop layout only
+ * Uses React.memo to prevent unnecessary re-renders
+ * Memoizes expensive operations for 60+ button performance
  */
-export const QuestionPalette = ({
+const QuestionPalette = ({
   session,
   currentQuestionIndex,
   questionStatuses,
   onNavigateToQuestion,
   onCompleteSession,
 }: QuestionPaletteProps) => {
+  // ✅ CRITICAL: Memoize question indices array to prevent re-creation
+  const questionIndices = useMemo(() => {
+    return Array.from({ length: session.totalQuestions }, (_, index) => index);
+  }, [session.totalQuestions]);
   // Format time display helper
   const formatTime = useCallback((seconds: number): string => {
     const hours = Math.floor(seconds / 3600);
@@ -122,29 +128,42 @@ export const QuestionPalette = ({
 
         <Separator className="my-4" />
 
-        {/* Question Grid */}
-        <div className="grid grid-cols-5 gap-2">
-          {Array.from({ length: session.totalQuestions }, (_, index) => (
-            <Button
-              key={index}
-              variant={index === currentQuestionIndex ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => handleQuestionClick(index)}
-              className={`relative h-10 w-10 p-0 ${
-                index !== currentQuestionIndex
-                  ? getQuestionStatusColor(index)
-                  : ''
-              }`}
-            >
-              <span className="text-xs font-medium">{index + 1}</span>
-              {index !== currentQuestionIndex && (
-                <div className="absolute -top-1 -right-1">
-                  {getQuestionStatusIcon(index)}
-                </div>
-              )}
-            </Button>
-          ))}
-        </div>
+        {/* Question Grid - PERFORMANCE OPTIMIZED */}
+        {session.totalQuestions > 50 ? (
+          // ✅ CRITICAL: Use virtual scrolling for large question sets
+          <VirtualQuestionGrid
+            totalQuestions={session.totalQuestions}
+            currentQuestionIndex={currentQuestionIndex}
+            questionStatuses={questionStatuses}
+            onNavigateToQuestion={handleQuestionClick}
+            containerHeight={300}
+            cols={5}
+          />
+        ) : (
+          // ✅ Use standard grid for smaller sets
+          <div className="grid grid-cols-5 gap-2">
+            {questionIndices.map((index) => (
+              <Button
+                key={index}
+                variant={index === currentQuestionIndex ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => handleQuestionClick(index)}
+                className={`relative h-10 w-10 p-0 ${
+                  index !== currentQuestionIndex
+                    ? getQuestionStatusColor(index)
+                    : ''
+                }`}
+              >
+                <span className="text-xs font-medium">{index + 1}</span>
+                {index !== currentQuestionIndex && (
+                  <div className="absolute -top-1 -right-1">
+                    {getQuestionStatusIcon(index)}
+                  </div>
+                )}
+              </Button>
+            ))}
+          </div>
+        )}
 
         {/* Legend */}
         <div className="mt-6 space-y-2 text-xs">
@@ -180,3 +199,8 @@ export const QuestionPalette = ({
     </Card>
   );
 };
+
+// ✅ PERFORMANCE: Memoize component to prevent re-renders from parent state changes
+// Critical for 60+ question buttons performance
+export { QuestionPalette };
+export default memo(QuestionPalette);

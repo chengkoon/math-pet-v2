@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback } from 'react';
+import { useCallback, memo } from 'react';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight, Bookmark } from 'lucide-react';
 
@@ -21,7 +21,7 @@ interface QuestionNavigationProps {
  * Handles previous/next/clear/bookmark actions
  * Does NOT handle question display or session management
  */
-export const QuestionNavigation = ({
+const QuestionNavigation = ({
   currentQuestionIndex,
   totalQuestions,
   mcqAnswer,
@@ -93,3 +93,7 @@ export const QuestionNavigation = ({
     </div>
   );
 };
+
+// ✅ PERFORMANCE: Memoize component to prevent unnecessary re-renders
+export { QuestionNavigation };
+export default memo(QuestionNavigation);

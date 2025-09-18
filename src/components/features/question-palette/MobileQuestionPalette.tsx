@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, memo, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { CheckCircle2, Flag, X } from 'lucide-react';
 import type { PracticeSessionResponse } from '@chengkoon/mathpet-api-types';
@@ -25,7 +25,7 @@ interface MobileQuestionPaletteProps {
  * Features: gesture support, focus trap, accessibility, proper z-index
  * CRITICAL: Fixes mobile UX issues from original implementation
  */
-export const MobileQuestionPalette = ({
+const MobileQuestionPalette = ({
   session,
   currentQuestionIndex,
   questionStatuses,
@@ -274,3 +274,7 @@ export const MobileQuestionPalette = ({
     </>
   );
 };
+
+// ✅ PERFORMANCE: Memoize component for mobile performance
+export { MobileQuestionPalette };
+export default memo(MobileQuestionPalette);

@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback } from 'react';
+import { useCallback, useMemo, memo } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
@@ -27,11 +27,12 @@ interface QuestionContentProps {
 }
 
 /**
- * QuestionContent - Atomic component for question display
+ * QuestionContent - Atomic component for question display (OPTIMIZED)
  * Handles MCQ options, short answer input, and question text rendering
- * Does NOT handle navigation or session management
+ * Uses React.memo to prevent unnecessary re-renders
+ * Memoizes expensive operations for performance
  */
-export const QuestionContent = ({
+const QuestionContent = ({
   question,
   questionIndex,
   totalQuestions,
@@ -44,11 +45,28 @@ export const QuestionContent = ({
   onShortAnswerSubmit,
   onFlagToggle,
 }: QuestionContentProps) => {
-  // Get MCQ options with proper sorting and filtering
-  const mcqOptions =
-    question?.components
-      ?.filter((component) => component.componentType === 'MCQ_OPTION')
-      .sort((a, b) => (a.componentOrder ?? 0) - (b.componentOrder ?? 0)) ?? [];
+  // ✅ PERFORMANCE: Memoize expensive MCQ options calculation
+  const mcqOptions = useMemo(() => {
+    return (
+      question?.components
+        ?.filter((component) => component.componentType === 'MCQ_OPTION')
+        .sort((a, b) => (a.componentOrder ?? 0) - (b.componentOrder ?? 0)) ?? []
+    );
+  }, [question?.components]);
+
+  // ✅ PERFORMANCE: Memoize isMCQ calculation
+  const isMCQ = useMemo(() => {
+    return Boolean(
+      question?.components?.some((c) => c.componentType === 'MCQ_OPTION')
+    );
+  }, [question?.components]);
+
+  // ✅ PERFORMANCE: Memoize progress calculation
+  const progress = useMemo(() => {
+    return totalQuestions > 0
+      ? ((questionIndex + 1) / totalQuestions) * 100
+      : 0;
+  }, [questionIndex, totalQuestions]);
 
   // Handle MCQ selection with proper type safety - MUST be called unconditionally
   const handleMcqSelect = useCallback(
@@ -86,14 +104,7 @@ export const QuestionContent = ({
     );
   }
 
-  // Calculate progress with proper null checks
-  const progress =
-    totalQuestions > 0 ? ((questionIndex + 1) / totalQuestions) * 100 : 0;
-
-  // Determine if this is an MCQ question with proper type safety
-  const isMCQ = Boolean(
-    question.components?.some((c) => c.componentType === 'MCQ_OPTION')
-  );
+  // ✅ PERFORMANCE: Using memoized values (calculated above)
 
   return (
     <Card>
@@ -217,3 +228,8 @@ export const QuestionContent = ({
     </Card>
   );
 };
+
+// ✅ PERFORMANCE: Memoize component to prevent unnecessary re-renders
+// Only re-render if props actually change
+export { QuestionContent };
+export default memo(QuestionContent);

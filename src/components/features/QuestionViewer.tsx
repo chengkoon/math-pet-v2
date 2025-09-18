@@ -1,14 +1,24 @@
 'use client';
 
+import { useEffect } from 'react';
 import { BookOpen, Clock } from 'lucide-react';
-import { usePracticeSession, usePracticeSessionQuestion } from '@/hooks/use-practice';
+import {
+  usePracticeSession,
+  usePracticeSessionQuestion,
+} from '@/hooks/use-practice';
 import { useQuestionMutations } from '@/hooks/useQuestionMutations';
 import { useQuestionViewerState } from '@/hooks/useQuestionViewerState';
 import { withQuestionViewerErrorBoundary } from './QuestionViewerErrorBoundary';
-import { QuestionContent } from './question-content/QuestionContent';
-import { QuestionNavigation } from './question-navigation/QuestionNavigation';
-import { QuestionPalette } from './question-palette/QuestionPalette';
-import { MobileQuestionPalette } from './question-palette/MobileQuestionPalette';
+import QuestionContent from './question-content/QuestionContent';
+import QuestionNavigation from './question-navigation/QuestionNavigation';
+import QuestionPalette from './question-palette/QuestionPalette';
+import MobileQuestionPalette from './question-palette/MobileQuestionPalette';
+import {
+  SkipLinks,
+  announceQuestionChange,
+  useKeyboardNavigation,
+} from './accessibility/a11y-utils';
+import { QuestionViewerSkeleton } from './skeleton/QuestionViewerSkeleton';
 
 interface QuestionViewerProps {
   sessionId: string;
@@ -43,6 +53,31 @@ function QuestionViewer({ sessionId, onComplete }: QuestionViewerProps) {
 
   const { data: currentQuestion, isLoading: questionLoading } =
     usePracticeSessionQuestion(sessionId, currentQuestionIndex);
+
+  // ✅ ACCESSIBILITY: Keyboard navigation support
+  useKeyboardNavigation(
+    currentQuestionIndex,
+    session?.totalQuestions ?? 0,
+    navigation.goToQuestion,
+    navigation.nextQuestion,
+    navigation.previousQuestion,
+    true // Always enabled for accessibility
+  );
+
+  // ✅ ACCESSIBILITY: Announce question changes to screen readers
+  useEffect(() => {
+    if (currentQuestion?.question?.questionText) {
+      announceQuestionChange(
+        currentQuestionIndex,
+        session?.totalQuestions ?? 0,
+        currentQuestion.question.questionText
+      );
+    }
+  }, [
+    currentQuestionIndex,
+    currentQuestion?.question?.questionText,
+    session?.totalQuestions,
+  ]);
 
   // Mutation hook - all API calls
   const { submitMcqAnswer, submitShortAnswer, isSubmittingAnswer } =
@@ -101,18 +136,9 @@ function QuestionViewer({ sessionId, onComplete }: QuestionViewerProps) {
     }
   };
 
-  // Loading state
+  // ✅ PERFORMANCE: Optimized loading skeleton
   if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-        <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-          <div className="animate-pulse space-y-6">
-            <div className="h-16 rounded bg-gray-200 dark:bg-gray-700" />
-            <div className="h-96 rounded bg-gray-200 dark:bg-gray-700" />
-          </div>
-        </div>
-      </div>
-    );
+    return <QuestionViewerSkeleton />;
   }
 
   // Error state
@@ -136,6 +162,9 @@ function QuestionViewer({ sessionId, onComplete }: QuestionViewerProps) {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      {/* ✅ ACCESSIBILITY: Skip links for keyboard users */}
+      <SkipLinks />
+
       {/* Header - Simplified */}
       <div className="sticky top-0 z-10 border-b border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -146,12 +175,13 @@ function QuestionViewer({ sessionId, onComplete }: QuestionViewerProps) {
                 {session.packTitle || 'Practice Session'}
               </h1>
             </div>
-            {session.totalTimeSpentSeconds && session.totalTimeSpentSeconds > 0 && (
-              <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                <Clock className="mr-1 h-4 w-4" />
-                Time: {formatTime(session.totalTimeSpentSeconds)}
-              </div>
-            )}
+            {session.totalTimeSpentSeconds &&
+              session.totalTimeSpentSeconds > 0 && (
+                <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                  <Clock className="mr-1 h-4 w-4" />
+                  Time: {formatTime(session.totalTimeSpentSeconds)}
+                </div>
+              )}
           </div>
         </div>
       </div>
@@ -160,34 +190,48 @@ function QuestionViewer({ sessionId, onComplete }: QuestionViewerProps) {
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
           {/* Question Area */}
-          <div className="lg:col-span-3 space-y-6">
-            <QuestionContent
-              question={currentQuestion}
-              questionIndex={currentQuestionIndex}
-              totalQuestions={session.totalQuestions}
-              mcqAnswer={mcqAnswers[currentQuestionIndex]}
-              shortAnswer={shortAnswers[currentQuestionIndex] || ''}
-              questionStatus={questionStatuses[currentQuestionIndex] || 'unanswered'}
-              isSubmittingAnswer={isSubmittingAnswer}
-              onMcqAnswerChange={handleMcqAnswerChange}
-              onShortAnswerChange={(answer) =>
-                answers.updateShortAnswer(currentQuestionIndex, answer)
-              }
-              onShortAnswerSubmit={handleShortAnswerSubmit}
-              onFlagToggle={handleFlagToggle}
-            />
+          <div className="space-y-6 lg:col-span-3">
+            <main
+              id="question-content"
+              role="main"
+              aria-label="Question content"
+            >
+              <QuestionContent
+                question={currentQuestion}
+                questionIndex={currentQuestionIndex}
+                totalQuestions={session.totalQuestions}
+                mcqAnswer={mcqAnswers[currentQuestionIndex]}
+                shortAnswer={shortAnswers[currentQuestionIndex] || ''}
+                questionStatus={
+                  questionStatuses[currentQuestionIndex] || 'unanswered'
+                }
+                isSubmittingAnswer={isSubmittingAnswer}
+                onMcqAnswerChange={handleMcqAnswerChange}
+                onShortAnswerChange={(answer) =>
+                  answers.updateShortAnswer(currentQuestionIndex, answer)
+                }
+                onShortAnswerSubmit={handleShortAnswerSubmit}
+                onFlagToggle={handleFlagToggle}
+              />
 
-            <QuestionNavigation
-              currentQuestionIndex={currentQuestionIndex}
-              totalQuestions={session.totalQuestions}
-              mcqAnswer={mcqAnswers[currentQuestionIndex]}
-              shortAnswer={shortAnswers[currentQuestionIndex] || ''}
-              onPrevious={navigation.previousQuestion}
-              onNext={navigation.nextQuestion}
-              onClearAnswer={handleClearAnswer}
-              onBookmark={() => {}} // TODO: Implement bookmark functionality
-              onComplete={handleCompleteSession}
-            />
+              <nav
+                id="question-navigation"
+                role="navigation"
+                aria-label="Question navigation"
+              >
+                <QuestionNavigation
+                  currentQuestionIndex={currentQuestionIndex}
+                  totalQuestions={session.totalQuestions}
+                  mcqAnswer={mcqAnswers[currentQuestionIndex]}
+                  shortAnswer={shortAnswers[currentQuestionIndex] || ''}
+                  onPrevious={navigation.previousQuestion}
+                  onNext={navigation.nextQuestion}
+                  onClearAnswer={handleClearAnswer}
+                  onBookmark={() => {}} // TODO: Implement bookmark functionality
+                  onComplete={handleCompleteSession}
+                />
+              </nav>
+            </main>
           </div>
 
           {/* Desktop Sidebar */}
