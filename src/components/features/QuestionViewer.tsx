@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -23,30 +23,39 @@ import Image from 'next/image';
 import {
   usePracticeSession,
   usePracticeSessionQuestion,
-  useUpdateQuestionAttempt,
 } from '@/hooks/use-practice';
+import { useQuestionMutations } from '@/hooks/useQuestionMutations';
+import { withQuestionViewerErrorBoundary } from './QuestionViewerErrorBoundary';
 
 type QuestionStatus = 'unanswered' | 'answered' | 'flagged';
+
+// Improved type safety interfaces
+interface McqAnswers {
+  [questionIndex: number]: number; // Option index
+}
+
+interface ShortAnswers {
+  [questionIndex: number]: string; // Answer text
+}
+
+interface QuestionStatuses {
+  [questionIndex: number]: QuestionStatus;
+}
 
 interface QuestionViewerProps {
   sessionId: string;
   onComplete?: () => void;
 }
 
-export default function QuestionViewer({
-  sessionId,
-  onComplete,
-}: QuestionViewerProps) {
+function QuestionViewer({ sessionId, onComplete }: QuestionViewerProps) {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [selectedAnswers, setSelectedAnswers] = useState<
-    Record<number, string | number>
-  >({});
-  const [questionStatuses, setQuestionStatuses] = useState<
-    Record<number, QuestionStatus>
-  >({});
+  const [selectedAnswers, setSelectedAnswers] = useState<McqAnswers>({});
+  const [questionStatuses, setQuestionStatuses] = useState<QuestionStatuses>(
+    {}
+  );
   const [showMobileQuestionPalette, setShowMobileQuestionPalette] =
     useState(false);
-  const [shortAnswers, setShortAnswers] = useState<Record<number, string>>({});
+  const [shortAnswers, setShortAnswers] = useState<ShortAnswers>({});
 
   // API hooks
   const {
@@ -58,9 +67,26 @@ export default function QuestionViewer({
   const { data: currentQuestion, isLoading: questionLoading } =
     usePracticeSessionQuestion(sessionId, currentQuestionIndex);
 
-  const updateQuestionAttemptMutation = useUpdateQuestionAttempt();
+  // Use custom hook for mutations (following coding standards)
+  const { submitMcqAnswer, submitShortAnswer, isSubmittingAnswer } =
+    useQuestionMutations({
+      sessionId,
+      currentQuestionIndex,
+      setQuestionStatuses,
+    });
 
   const isLoading = sessionLoading || questionLoading;
+
+  // Create stable dependency for questionAttempts
+  const questionAttemptsKey = useMemo(() => {
+    if (!session?.questionAttempts) return '';
+    return JSON.stringify(
+      session.questionAttempts.map((attempt) => ({
+        questionIndex: attempt.questionIndex,
+        isCorrect: attempt.isCorrect,
+      }))
+    );
+  }, [session?.questionAttempts]);
 
   // Update current question index based on session data
   useEffect(() => {
@@ -71,16 +97,17 @@ export default function QuestionViewer({
 
   // Initialize question statuses based on session attempts
   useEffect(() => {
-    if (session?.questionAttempts) {
+    if (session?.questionAttempts && session.questionAttempts.length > 0) {
       const statuses: Record<number, QuestionStatus> = {};
-      session.questionAttempts.forEach((attempt) => {
+      // Use for...of loop to avoid function reference issues
+      for (const attempt of session.questionAttempts) {
         if (attempt.questionIndex !== undefined) {
           statuses[attempt.questionIndex] = 'answered';
         }
-      });
+      }
       setQuestionStatuses(statuses);
     }
-  }, [session?.questionAttempts]);
+  }, [session?.questionAttempts, questionAttemptsKey]); // Include both dependencies
 
   if (isLoading) {
     return (
@@ -119,58 +146,21 @@ export default function QuestionViewer({
       : 0;
 
   const handleAnswerSelect = (value: string) => {
-    const optionIndex = parseInt(value);
+    const optionIndex = parseInt(value, 10);
+    if (isNaN(optionIndex)) return; // Type safety check
+
     setSelectedAnswers((prev) => ({
       ...prev,
       [currentQuestionIndex]: optionIndex,
     }));
 
-    setQuestionStatuses((prev) => ({
-      ...prev,
-      [currentQuestionIndex]: 'answered',
-    }));
-
-    // Submit the answer to the API
-    if (
-      currentQuestion?.components &&
-      currentQuestion.components[optionIndex]
-    ) {
-      const selectedOption = currentQuestion.components[optionIndex];
-      if (selectedOption.id) {
-        updateQuestionAttemptMutation.mutate({
-          sessionId,
-          request: {
-            questionId: currentQuestion.question?.id || 0,
-            questionIndex: currentQuestionIndex,
-            studentAnswer: selectedOption.contentText || '',
-            selectedOptionId: selectedOption.id,
-            timeSpentSeconds: 0, // TODO: Track actual time spent
-            action: 'ANSWER' as const,
-          },
-        });
-      }
-    }
+    // Submit the answer using custom hook
+    submitMcqAnswer(optionIndex, currentQuestion);
   };
 
   const handleShortAnswerSubmit = () => {
     const answerText = shortAnswers[currentQuestionIndex] || '';
-    if (answerText.trim()) {
-      setQuestionStatuses((prev) => ({
-        ...prev,
-        [currentQuestionIndex]: 'answered',
-      }));
-
-      updateQuestionAttemptMutation.mutate({
-        sessionId,
-        request: {
-          questionId: currentQuestion?.question?.id || 0,
-          questionIndex: currentQuestionIndex,
-          studentAnswer: answerText.trim(),
-          timeSpentSeconds: 0, // TODO: Track actual time spent
-          action: 'ANSWER' as const,
-        },
-      });
-    }
+    submitShortAnswer(answerText, currentQuestion);
   };
 
   const handleFlagQuestion = () => {
@@ -411,9 +401,12 @@ export default function QuestionViewer({
                       <Button
                         className="mt-2"
                         onClick={handleShortAnswerSubmit}
-                        disabled={!shortAnswers[currentQuestionIndex]?.trim()}
+                        disabled={
+                          !shortAnswers[currentQuestionIndex]?.trim() ||
+                          isSubmittingAnswer
+                        }
                       >
-                        Submit Answer
+                        {isSubmittingAnswer ? 'Submitting...' : 'Submit Answer'}
                       </Button>
                     </div>
 
@@ -743,3 +736,6 @@ export default function QuestionViewer({
     </div>
   );
 }
+
+// Export with error boundary wrapper for better error handling
+export default withQuestionViewerErrorBoundary(QuestionViewer);
