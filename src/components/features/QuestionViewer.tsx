@@ -168,53 +168,43 @@ function QuestionViewer({ sessionId, onComplete }: QuestionViewerProps) {
       <SkipLinks />
 
       {/* Header - Simplified */}
-      <header className="sticky top-0 z-10 border-b border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+      <div className="sticky top-12 z-40 border-b border-gray-200/50 bg-white/80 backdrop-blur-sm dark:border-gray-700/50 dark:bg-gray-800/80">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex h-16 items-center justify-between">
-            {/* Left section with back button and title */}
-            <div className="flex items-center space-x-4">
+          <div className="flex h-14 items-center justify-between">
+            {/* Left: Back navigation with breadcrumb */}
+            <div className="flex items-center space-x-3">
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => window.history.back()}
-                className="flex items-center space-x-2 text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-gray-100"
-                aria-label="Go back to pack overview"
+                className="flex items-center space-x-2"
               >
                 <ArrowLeft className="h-4 w-4" />
-                <span className="hidden sm:inline">Back to Pack</span>
-                <span className="sm:hidden">Back</span>
+                <span className="hidden sm:inline">Back</span>
               </Button>
 
-              <div
-                className="h-6 w-px bg-gray-300 dark:bg-gray-600"
-                aria-hidden="true"
-              />
-
-              <div className="flex items-center space-x-2">
-                <BookOpen className="h-5 w-5 text-blue-600" />
-                <div>
-                  <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                    {session.packTitle}
-                  </h1>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
-                    Question {currentQuestionIndex + 1} of{' '}
-                    {session.totalQuestions}
-                  </p>
-                </div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">
+                {session.packTitle}
               </div>
             </div>
 
-            {/* Right section with timer */}
-            {/* {session.totalTimeSpentSeconds &&
-              session.totalTimeSpentSeconds > 0 && (
-                <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
-                  <Clock className="h-4 w-4" />
-                  <span>Time: {formatTime(session.totalTimeSpentSeconds)}</span>
-                </div>
-              )} */}
+            {/* Right: Progress indicator */}
+            <div className="flex items-center space-x-3 text-sm">
+              <div className="hidden text-gray-600 sm:block dark:text-gray-400">
+                {currentQuestionIndex + 1} of {session.totalQuestions}
+              </div>
+              <div className="h-1.5 w-16 rounded-full bg-gray-200 dark:bg-gray-700">
+                <div
+                  className="h-1.5 rounded-full bg-blue-600 transition-all"
+                  style={{
+                    width: `${((currentQuestionIndex + 1) / session.totalQuestions) * 100}%`,
+                  }}
+                />
+              </div>
+            </div>
           </div>
         </div>
-      </header>
+      </div>
 
       {/* Main Content */}
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
