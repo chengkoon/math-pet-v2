@@ -48,7 +48,7 @@ const QuestionNavigation = ({
   }, [isLastQuestion, onComplete, onNext]);
 
   return (
-    <div className="flex items-center justify-between">
+    <div className="flex items-center justify-between py-4">
       {/* Previous Button */}
       <Button
         variant="outline"
