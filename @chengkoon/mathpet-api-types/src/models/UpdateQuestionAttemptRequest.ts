@@ -24,7 +24,7 @@ export interface UpdateQuestionAttemptRequest {
      * @type {number}
      * @memberof UpdateQuestionAttemptRequest
      */
-    attemptId?: number;
+    attemptId: number;
     /**
      * ID of the question being updated
      * @type {number}
@@ -78,6 +78,7 @@ export type UpdateQuestionAttemptRequestActionEnum = typeof UpdateQuestionAttemp
  * Check if a given object implements the UpdateQuestionAttemptRequest interface.
  */
 export function instanceOfUpdateQuestionAttemptRequest(value: object): value is UpdateQuestionAttemptRequest {
+    if (!('attemptId' in value) || value['attemptId'] === undefined) return false;
     if (!('questionId' in value) || value['questionId'] === undefined) return false;
     if (!('timeSpentSeconds' in value) || value['timeSpentSeconds'] === undefined) return false;
     if (!('action' in value) || value['action'] === undefined) return false;
@@ -94,7 +95,7 @@ export function UpdateQuestionAttemptRequestFromJSONTyped(json: any, ignoreDiscr
     }
     return {
         
-        'attemptId': json['attemptId'] == null ? undefined : json['attemptId'],
+        'attemptId': json['attemptId'],
         'questionId': json['questionId'],
         'questionIndex': json['questionIndex'] == null ? undefined : json['questionIndex'],
         'studentAnswer': json['studentAnswer'] == null ? undefined : json['studentAnswer'],

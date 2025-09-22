@@ -2,7 +2,8 @@
 
 import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, BookOpen, Clock } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
+import { toast } from 'sonner';
 import {
   usePracticeSession,
   usePracticeSessionQuestion,
@@ -98,21 +99,9 @@ function QuestionViewer({ sessionId, onComplete }: QuestionViewerProps) {
       },
     });
 
-  // Format time helper
-  const formatTime = (seconds: number) => {
-    const hours = Math.floor(seconds / 3600);
-    const mins = Math.floor((seconds % 3600) / 60);
-    const secs = seconds % 60;
-    if (hours > 0) {
-      return `${hours}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-    }
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
-
-  // Handle MCQ answer submission
+  // Handle MCQ answer selection (without submission)
   const handleMcqAnswerChange = (optionIndex: number) => {
     answers.updateMcqAnswer(currentQuestionIndex, optionIndex);
-    submitMcqAnswer(optionIndex, currentQuestion);
   };
 
   // Handle short answer submission
@@ -121,9 +110,21 @@ function QuestionViewer({ sessionId, onComplete }: QuestionViewerProps) {
     submitShortAnswer(answerText, currentQuestion);
   };
 
-  // Handle clear answer
-  const handleClearAnswer = () => {
-    answers.clearAnswer(currentQuestionIndex);
+  // Handle check answer - submit the currently selected answer
+  const handleCheckAnswer = () => {
+    const currentMcqAnswer = mcqAnswers[currentQuestionIndex];
+    const currentShortAnswer = shortAnswers[currentQuestionIndex];
+
+    if (currentMcqAnswer !== undefined) {
+      // Submit MCQ answer
+      submitMcqAnswer(currentMcqAnswer, currentQuestion);
+    } else if (currentShortAnswer?.trim()) {
+      // Submit short answer
+      submitShortAnswer(currentShortAnswer, currentQuestion);
+    } else {
+      // No answer selected, show toast
+      toast.warning('Please select an answer before checking.');
+    }
   };
 
   // Handle flag toggle
@@ -246,11 +247,14 @@ function QuestionViewer({ sessionId, onComplete }: QuestionViewerProps) {
                 <QuestionNavigation
                   currentQuestionIndex={currentQuestionIndex}
                   totalQuestions={session.totalQuestions}
-                  mcqAnswer={mcqAnswers[currentQuestionIndex]}
-                  shortAnswer={shortAnswers[currentQuestionIndex] || ''}
+                  hasAnswer={
+                    mcqAnswers[currentQuestionIndex] !== undefined ||
+                    (shortAnswers[currentQuestionIndex]?.trim().length ?? 0) > 0
+                  }
+                  isSubmittingAnswer={isSubmittingAnswer}
                   onPrevious={navigation.previousQuestion}
                   onNext={navigation.nextQuestion}
-                  onClearAnswer={handleClearAnswer}
+                  onCheckAnswer={handleCheckAnswer}
                   onBookmark={() => {}} // TODO: Implement bookmark functionality
                   onComplete={handleCompleteSession}
                 />

@@ -7,11 +7,11 @@ import { ChevronLeft, ChevronRight, Bookmark } from 'lucide-react';
 interface QuestionNavigationProps {
   currentQuestionIndex: number;
   totalQuestions: number;
-  mcqAnswer: number | undefined;
-  shortAnswer: string;
+  hasAnswer?: boolean;
+  isSubmittingAnswer?: boolean;
   onPrevious: () => void;
   onNext: () => void;
-  onClearAnswer: () => void;
+  onCheckAnswer: () => void;
   onBookmark: () => void;
   onComplete: () => void;
 }
@@ -24,17 +24,14 @@ interface QuestionNavigationProps {
 const QuestionNavigation = ({
   currentQuestionIndex,
   totalQuestions,
-  mcqAnswer,
-  shortAnswer,
+  hasAnswer = false,
+  isSubmittingAnswer = false,
   onPrevious,
   onNext,
-  onClearAnswer,
+  onCheckAnswer,
   onBookmark,
   onComplete,
 }: QuestionNavigationProps) => {
-  // Check if there's an answer to clear
-  const hasAnswer = Boolean(mcqAnswer !== undefined || shortAnswer.trim());
-
   // Check if this is the last question
   const isLastQuestion = currentQuestionIndex >= totalQuestions - 1;
 
@@ -68,8 +65,17 @@ const QuestionNavigation = ({
 
       {/* Action Buttons */}
       <div className="flex space-x-2">
-        <Button variant="outline" onClick={onClearAnswer} disabled={!hasAnswer}>
-          Clear Answer
+        <Button
+          variant="outline"
+          onClick={onCheckAnswer}
+          disabled={isSubmittingAnswer}
+          className={
+            hasAnswer
+              ? 'border-blue-200 bg-blue-50 dark:border-blue-700 dark:bg-blue-900/20'
+              : ''
+          }
+        >
+          {isSubmittingAnswer ? 'Checking...' : 'Check Answer'}
         </Button>
 
         <Button variant="outline" onClick={onBookmark}>

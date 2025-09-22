@@ -51,6 +51,16 @@ export const useQuestionMutations = ({
         return;
       }
 
+      // Get the current attempt ID from the question's attempts
+      const currentAttempt = question.attempts?.find(
+        (attempt) => attempt.questionIndex === currentQuestionIndex
+      );
+
+      if (!currentAttempt?.id) {
+        toast.error('Unable to find attempt record. Please try again.');
+        return;
+      }
+
       // Update local state immediately for better UX
       setQuestionStatuses((prev) => ({
         ...prev,
@@ -61,6 +71,7 @@ export const useQuestionMutations = ({
         {
           sessionId,
           request: {
+            attemptId: currentAttempt.id,
             questionId: question.question.id,
             questionIndex: currentQuestionIndex,
             studentAnswer: selectedOption.contentText || '',
@@ -100,6 +111,16 @@ export const useQuestionMutations = ({
         return;
       }
 
+      // Get the current attempt ID from the question's attempts
+      const currentAttempt = question.attempts?.find(
+        (attempt) => attempt.questionIndex === currentQuestionIndex
+      );
+
+      if (!currentAttempt?.id) {
+        toast.error('Unable to find attempt record. Please try again.');
+        return;
+      }
+
       // Update local state immediately for better UX
       setQuestionStatuses((prev) => ({
         ...prev,
@@ -110,6 +131,7 @@ export const useQuestionMutations = ({
         {
           sessionId,
           request: {
+            attemptId: currentAttempt.id,
             questionId: question.question.id,
             questionIndex: currentQuestionIndex,
             studentAnswer: answerText.trim(),
