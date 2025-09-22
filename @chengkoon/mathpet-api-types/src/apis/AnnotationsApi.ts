@@ -33,7 +33,7 @@ export interface CreateAnnotationOperationRequest {
 }
 
 export interface DeleteAnnotationRequest {
-    annotationId: string;
+    annotationId: number;
 }
 
 /**

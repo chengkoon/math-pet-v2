@@ -20,6 +20,12 @@ import { mapValues } from '../runtime';
  */
 export interface CreateAnnotationRequest {
     /**
+     * ID of the question attempt (optional)
+     * @type {number}
+     * @memberof CreateAnnotationRequest
+     */
+    attemptId?: number;
+    /**
      * ID of the question to annotate
      * @type {number}
      * @memberof CreateAnnotationRequest
@@ -96,6 +102,7 @@ export function CreateAnnotationRequestFromJSONTyped(json: any, ignoreDiscrimina
     }
     return {
         
+        'attemptId': json['attemptId'] == null ? undefined : json['attemptId'],
         'questionId': json['questionId'],
         'sessionId': json['sessionId'] == null ? undefined : json['sessionId'],
         'annotationType': json['annotationType'],
@@ -117,6 +124,7 @@ export function CreateAnnotationRequestToJSONTyped(value?: CreateAnnotationReque
 
     return {
         
+        'attemptId': value['attemptId'],
         'questionId': value['questionId'],
         'sessionId': value['sessionId'],
         'annotationType': value['annotationType'],
