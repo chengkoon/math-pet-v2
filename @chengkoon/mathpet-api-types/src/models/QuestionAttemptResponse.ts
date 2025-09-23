@@ -56,11 +56,11 @@ export interface QuestionAttemptResponse {
      */
     selectedOptionId?: number;
     /**
-     * Student's interaction type (e.g., "ANSWERED", "SEEN_ONLY")
+     * 
      * @type {string}
      * @memberof QuestionAttemptResponse
      */
-    interactionType: string;
+    status: QuestionAttemptResponseStatusEnum;
     /**
      * Whether the answer has been answered
      * @type {boolean}
@@ -93,6 +93,19 @@ export interface QuestionAttemptResponse {
     attemptedAt?: Date;
 }
 
+
+/**
+ * @export
+ */
+export const QuestionAttemptResponseStatusEnum = {
+    Entered: 'ENTERED',
+    Answered: 'ANSWERED',
+    Skipped: 'SKIPPED',
+    SeenOnly: 'SEEN_ONLY'
+} as const;
+export type QuestionAttemptResponseStatusEnum = typeof QuestionAttemptResponseStatusEnum[keyof typeof QuestionAttemptResponseStatusEnum];
+
+
 /**
  * Check if a given object implements the QuestionAttemptResponse interface.
  */
@@ -100,7 +113,7 @@ export function instanceOfQuestionAttemptResponse(value: object): value is Quest
     if (!('id' in value) || value['id'] === undefined) return false;
     if (!('questionId' in value) || value['questionId'] === undefined) return false;
     if (!('questionIndex' in value) || value['questionIndex'] === undefined) return false;
-    if (!('interactionType' in value) || value['interactionType'] === undefined) return false;
+    if (!('status' in value) || value['status'] === undefined) return false;
     return true;
 }
 
@@ -120,7 +133,7 @@ export function QuestionAttemptResponseFromJSONTyped(json: any, ignoreDiscrimina
         'parentQuestionPosition': json['parentQuestionPosition'] == null ? undefined : json['parentQuestionPosition'],
         'studentAnswer': json['studentAnswer'] == null ? undefined : json['studentAnswer'],
         'selectedOptionId': json['selectedOptionId'] == null ? undefined : json['selectedOptionId'],
-        'interactionType': json['interactionType'],
+        'status': json['status'],
         'wasAnswered': json['wasAnswered'] == null ? undefined : json['wasAnswered'],
         'isCorrect': json['isCorrect'] == null ? undefined : json['isCorrect'],
         'timeSpentSeconds': json['timeSpentSeconds'] == null ? undefined : json['timeSpentSeconds'],
@@ -146,7 +159,7 @@ export function QuestionAttemptResponseToJSONTyped(value?: QuestionAttemptRespon
         'parentQuestionPosition': value['parentQuestionPosition'],
         'studentAnswer': value['studentAnswer'],
         'selectedOptionId': value['selectedOptionId'],
-        'interactionType': value['interactionType'],
+        'status': value['status'],
         'wasAnswered': value['wasAnswered'],
         'isCorrect': value['isCorrect'],
         'timeSpentSeconds': value['timeSpentSeconds'],
