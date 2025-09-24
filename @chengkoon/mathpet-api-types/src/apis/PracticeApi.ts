@@ -15,6 +15,7 @@
 
 import * as runtime from '../runtime';
 import type {
+  CheckQuestionAnswerRequest,
   ErrorResponse,
   PracticeQuestionResponse,
   PracticeSessionResponse,
@@ -22,9 +23,10 @@ import type {
   StartPracticeSessionRequest,
   TopicPracticeSessionSummary,
   UpdatePracticeSessionRequest,
-  UpdateQuestionAttemptRequest,
 } from '../models/index';
 import {
+    CheckQuestionAnswerRequestFromJSON,
+    CheckQuestionAnswerRequestToJSON,
     ErrorResponseFromJSON,
     ErrorResponseToJSON,
     PracticeQuestionResponseFromJSON,
@@ -39,9 +41,12 @@ import {
     TopicPracticeSessionSummaryToJSON,
     UpdatePracticeSessionRequestFromJSON,
     UpdatePracticeSessionRequestToJSON,
-    UpdateQuestionAttemptRequestFromJSON,
-    UpdateQuestionAttemptRequestToJSON,
 } from '../models/index';
+
+export interface CheckQuestionAnswerOperationRequest {
+    sessionId: string;
+    checkQuestionAnswerRequest: CheckQuestionAnswerRequest;
+}
 
 export interface EndTopicPracticeSessionRequest {
     sessionId: string;
@@ -70,15 +75,59 @@ export interface UpdatePracticeSessionOperationRequest {
     updatePracticeSessionRequest: UpdatePracticeSessionRequest;
 }
 
-export interface UpdateQuestionAttemptOperationRequest {
-    sessionId: string;
-    updateQuestionAttemptRequest: UpdateQuestionAttemptRequest;
-}
-
 /**
  * 
  */
 export class PracticeApi extends runtime.BaseAPI {
+
+    /**
+     * Submit and check the student\'s answer for a specific question in the practice session
+     * Check student\'s answer for a question
+     */
+    async checkQuestionAnswerRaw(requestParameters: CheckQuestionAnswerOperationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<QuestionAttemptResponse>> {
+        if (requestParameters['sessionId'] == null) {
+            throw new runtime.RequiredError(
+                'sessionId',
+                'Required parameter "sessionId" was null or undefined when calling checkQuestionAnswer().'
+            );
+        }
+
+        if (requestParameters['checkQuestionAnswerRequest'] == null) {
+            throw new runtime.RequiredError(
+                'checkQuestionAnswerRequest',
+                'Required parameter "checkQuestionAnswerRequest" was null or undefined when calling checkQuestionAnswer().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+
+        let urlPath = `/api/practice/sessions/{sessionId}/question/check`;
+        urlPath = urlPath.replace(`{${"sessionId"}}`, encodeURIComponent(String(requestParameters['sessionId'])));
+
+        const response = await this.request({
+            path: urlPath,
+            method: 'PUT',
+            headers: headerParameters,
+            query: queryParameters,
+            body: CheckQuestionAnswerRequestToJSON(requestParameters['checkQuestionAnswerRequest']),
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => QuestionAttemptResponseFromJSON(jsonValue));
+    }
+
+    /**
+     * Submit and check the student\'s answer for a specific question in the practice session
+     * Check student\'s answer for a question
+     */
+    async checkQuestionAnswer(requestParameters: CheckQuestionAnswerOperationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<QuestionAttemptResponse> {
+        const response = await this.checkQuestionAnswerRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
 
     /**
      * End the current topic practice session and get summary
@@ -331,55 +380,6 @@ export class PracticeApi extends runtime.BaseAPI {
      */
     async updatePracticeSession(requestParameters: UpdatePracticeSessionOperationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<PracticeSessionResponse> {
         const response = await this.updatePracticeSessionRaw(requestParameters, initOverrides);
-        return await response.value();
-    }
-
-    /**
-     * Update an existing question attempt with student\'s answer or skip status (for questions that already have a \"SEEN_ONLY\" attempt record)
-     * Update existing question attempt
-     */
-    async updateQuestionAttemptRaw(requestParameters: UpdateQuestionAttemptOperationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<QuestionAttemptResponse>> {
-        if (requestParameters['sessionId'] == null) {
-            throw new runtime.RequiredError(
-                'sessionId',
-                'Required parameter "sessionId" was null or undefined when calling updateQuestionAttempt().'
-            );
-        }
-
-        if (requestParameters['updateQuestionAttemptRequest'] == null) {
-            throw new runtime.RequiredError(
-                'updateQuestionAttemptRequest',
-                'Required parameter "updateQuestionAttemptRequest" was null or undefined when calling updateQuestionAttempt().'
-            );
-        }
-
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        headerParameters['Content-Type'] = 'application/json';
-
-
-        let urlPath = `/api/practice/sessions/{sessionId}/question/attempt`;
-        urlPath = urlPath.replace(`{${"sessionId"}}`, encodeURIComponent(String(requestParameters['sessionId'])));
-
-        const response = await this.request({
-            path: urlPath,
-            method: 'PUT',
-            headers: headerParameters,
-            query: queryParameters,
-            body: UpdateQuestionAttemptRequestToJSON(requestParameters['updateQuestionAttemptRequest']),
-        }, initOverrides);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => QuestionAttemptResponseFromJSON(jsonValue));
-    }
-
-    /**
-     * Update an existing question attempt with student\'s answer or skip status (for questions that already have a \"SEEN_ONLY\" attempt record)
-     * Update existing question attempt
-     */
-    async updateQuestionAttempt(requestParameters: UpdateQuestionAttemptOperationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<QuestionAttemptResponse> {
-        const response = await this.updateQuestionAttemptRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

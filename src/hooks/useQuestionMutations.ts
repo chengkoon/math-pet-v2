@@ -1,8 +1,8 @@
 import { useCallback } from 'react';
-import { useUpdateQuestionAttempt } from '@/hooks/use-practice';
+import { useCheckQuestionAnswer } from '@/hooks/use-practice';
 import type {
   PracticeQuestionResponse,
-  UpdateQuestionAttemptRequest,
+  CheckQuestionAnswerRequest,
 } from '@chengkoon/mathpet-api-types';
 import type { QuestionStatuses } from '@/components/features/question-palette/question-status-utils';
 import { toast } from 'sonner';
@@ -36,7 +36,7 @@ export const useQuestionMutations = ({
   setQuestionStatuses,
   workingSteps,
 }: UseQuestionMutationsProps): UseQuestionMutationsReturn => {
-  const updateQuestionAttemptMutation = useUpdateQuestionAttempt();
+  const checkQuestionAnswerMutation = useCheckQuestionAnswer();
 
   const submitMcqAnswer = useCallback(
     (optionIndex: number, question?: PracticeQuestionResponse) => {
@@ -71,7 +71,7 @@ export const useQuestionMutations = ({
         [currentQuestionIndex]: 'ANSWERED',
       }));
 
-      updateQuestionAttemptMutation.mutate(
+      checkQuestionAnswerMutation.mutate(
         {
           sessionId,
           request: {
@@ -99,7 +99,7 @@ export const useQuestionMutations = ({
       sessionId,
       currentQuestionIndex,
       setQuestionStatuses,
-      updateQuestionAttemptMutation,
+      checkQuestionAnswerMutation,
     ]
   );
 
@@ -133,7 +133,7 @@ export const useQuestionMutations = ({
 
       // Prepare working steps - only include if there are valid steps
       const validWorkingSteps = workingSteps.filter((step) => step.trim());
-      const requestPayload: UpdateQuestionAttemptRequest = {
+      const requestPayload: CheckQuestionAnswerRequest = {
         attemptId: currentAttempt.id,
         questionId: question.question.id,
         questionIndex: currentQuestionIndex,
@@ -145,7 +145,7 @@ export const useQuestionMutations = ({
         }),
       };
 
-      updateQuestionAttemptMutation.mutate(
+      checkQuestionAnswerMutation.mutate(
         {
           sessionId,
           request: requestPayload,
@@ -165,7 +165,7 @@ export const useQuestionMutations = ({
       sessionId,
       currentQuestionIndex,
       setQuestionStatuses,
-      updateQuestionAttemptMutation,
+      checkQuestionAnswerMutation,
       workingSteps,
     ]
   );
@@ -173,6 +173,6 @@ export const useQuestionMutations = ({
   return {
     submitMcqAnswer,
     submitShortAnswer,
-    isSubmittingAnswer: updateQuestionAttemptMutation.isPending,
+    isSubmittingAnswer: checkQuestionAnswerMutation.isPending,
   };
 };

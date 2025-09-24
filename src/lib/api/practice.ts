@@ -2,7 +2,7 @@ import { PracticeApi } from '@chengkoon/mathpet-api-types';
 import type {
   StartPracticeSessionRequest,
   PracticeSessionResponse,
-  UpdateQuestionAttemptRequest,
+  CheckQuestionAnswerRequest,
   QuestionAttemptResponse,
   TopicPracticeSessionSummary,
   UpdatePracticeSessionRequest,
@@ -113,14 +113,14 @@ export const practiceService = {
   /**
    * Update question attempt
    */
-  async updateQuestionAttempt(
+  async checkQuestionAnswer(
     sessionId: string,
-    request: UpdateQuestionAttemptRequest
+    request: CheckQuestionAnswerRequest
   ): Promise<QuestionAttemptResponse> {
     try {
-      const response = await practiceApi.updateQuestionAttempt({
+      const response = await practiceApi.checkQuestionAnswer({
         sessionId,
-        updateQuestionAttemptRequest: request,
+        checkQuestionAnswerRequest: request,
       });
       return response;
     } catch (error) {

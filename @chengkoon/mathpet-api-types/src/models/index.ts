@@ -1,6 +1,7 @@
 /* tslint:disable */
 /* eslint-disable */
 export * from './Activity';
+export * from './CheckQuestionAnswerRequest';
 export * from './ClaudePromptRequest';
 export * from './ClaudeResponse';
 export * from './CreateAnnotationRequest';
@@ -38,6 +39,5 @@ export * from './TopicPracticeSessionSummary';
 export * from './TopicPracticeSessionSummaryStats';
 export * from './TopicResponse';
 export * from './UpdatePracticeSessionRequest';
-export * from './UpdateQuestionAttemptRequest';
 export * from './UploadFileRequest';
 export * from './UserResponse';

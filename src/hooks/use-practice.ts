@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { practiceService } from '@/lib/api/practice';
 import type {
   StartPracticeSessionRequest,
-  UpdateQuestionAttemptRequest,
+  CheckQuestionAnswerRequest,
   UpdatePracticeSessionRequest,
 } from '@chengkoon/mathpet-api-types';
 import { toast } from 'sonner';
@@ -98,7 +98,7 @@ export const useUpdatePracticeSession = () => {
 /**
  * Hook to update question attempt
  */
-export const useUpdateQuestionAttempt = () => {
+export const useCheckQuestionAnswer = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -107,8 +107,8 @@ export const useUpdateQuestionAttempt = () => {
       request,
     }: {
       sessionId: string;
-      request: UpdateQuestionAttemptRequest;
-    }) => practiceService.updateQuestionAttempt(sessionId, request),
+      request: CheckQuestionAnswerRequest;
+    }) => practiceService.checkQuestionAnswer(sessionId, request),
     onSuccess: (data, variables) => {
       // Invalidate related queries
       queryClient.invalidateQueries({
@@ -116,8 +116,8 @@ export const useUpdateQuestionAttempt = () => {
       });
     },
     onError: (error) => {
-      console.error('Failed to update question attempt:', error);
-      toast.error('Failed to update answer. Please try again.');
+      console.error('Failed to check question answer:', error);
+      toast.error('Failed to check answer. Please try again.');
     },
   });
 };

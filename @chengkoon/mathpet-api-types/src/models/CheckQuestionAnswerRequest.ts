@@ -16,74 +16,74 @@ import { mapValues } from '../runtime';
 /**
  * 
  * @export
- * @interface UpdateQuestionAttemptRequest
+ * @interface CheckQuestionAnswerRequest
  */
-export interface UpdateQuestionAttemptRequest {
+export interface CheckQuestionAnswerRequest {
     /**
      * ID of the attempt being updated
      * @type {number}
-     * @memberof UpdateQuestionAttemptRequest
+     * @memberof CheckQuestionAnswerRequest
      */
     attemptId: number;
     /**
      * ID of the question being updated
      * @type {number}
-     * @memberof UpdateQuestionAttemptRequest
+     * @memberof CheckQuestionAnswerRequest
      */
     questionId: number;
     /**
      * Index of the question in the practice session
      * @type {number}
-     * @memberof UpdateQuestionAttemptRequest
+     * @memberof CheckQuestionAnswerRequest
      */
     questionIndex?: number;
     /**
      * The student's answer (text for open-ended, option text for MCQ)
      * @type {string}
-     * @memberof UpdateQuestionAttemptRequest
+     * @memberof CheckQuestionAnswerRequest
      */
     studentAnswer?: string;
     /**
      * For MCQ questions, the ID of the selected option
      * @type {number}
-     * @memberof UpdateQuestionAttemptRequest
+     * @memberof CheckQuestionAnswerRequest
      */
     selectedOptionId?: number;
     /**
      * Time spent on this question
      * @type {number}
-     * @memberof UpdateQuestionAttemptRequest
+     * @memberof CheckQuestionAnswerRequest
      */
     timeSpentSeconds: number;
     /**
      * Array of working steps showing the student's work process
      * @type {Array<string>}
-     * @memberof UpdateQuestionAttemptRequest
+     * @memberof CheckQuestionAnswerRequest
      */
     studentWorkingSteps?: Array<string>;
     /**
      * Action to perform - either submit an answer or skip the question
      * @type {string}
-     * @memberof UpdateQuestionAttemptRequest
+     * @memberof CheckQuestionAnswerRequest
      */
-    action: UpdateQuestionAttemptRequestActionEnum;
+    action: CheckQuestionAnswerRequestActionEnum;
 }
 
 
 /**
  * @export
  */
-export const UpdateQuestionAttemptRequestActionEnum = {
+export const CheckQuestionAnswerRequestActionEnum = {
     Answer: 'ANSWER',
     Skip: 'SKIP'
 } as const;
-export type UpdateQuestionAttemptRequestActionEnum = typeof UpdateQuestionAttemptRequestActionEnum[keyof typeof UpdateQuestionAttemptRequestActionEnum];
+export type CheckQuestionAnswerRequestActionEnum = typeof CheckQuestionAnswerRequestActionEnum[keyof typeof CheckQuestionAnswerRequestActionEnum];
 
 
 /**
- * Check if a given object implements the UpdateQuestionAttemptRequest interface.
+ * Check if a given object implements the CheckQuestionAnswerRequest interface.
  */
-export function instanceOfUpdateQuestionAttemptRequest(value: object): value is UpdateQuestionAttemptRequest {
+export function instanceOfCheckQuestionAnswerRequest(value: object): value is CheckQuestionAnswerRequest {
     if (!('attemptId' in value) || value['attemptId'] === undefined) return false;
     if (!('questionId' in value) || value['questionId'] === undefined) return false;
     if (!('timeSpentSeconds' in value) || value['timeSpentSeconds'] === undefined) return false;
@@ -91,11 +91,11 @@ export function instanceOfUpdateQuestionAttemptRequest(value: object): value is 
     return true;
 }
 
-export function UpdateQuestionAttemptRequestFromJSON(json: any): UpdateQuestionAttemptRequest {
-    return UpdateQuestionAttemptRequestFromJSONTyped(json, false);
+export function CheckQuestionAnswerRequestFromJSON(json: any): CheckQuestionAnswerRequest {
+    return CheckQuestionAnswerRequestFromJSONTyped(json, false);
 }
 
-export function UpdateQuestionAttemptRequestFromJSONTyped(json: any, ignoreDiscriminator: boolean): UpdateQuestionAttemptRequest {
+export function CheckQuestionAnswerRequestFromJSONTyped(json: any, ignoreDiscriminator: boolean): CheckQuestionAnswerRequest {
     if (json == null) {
         return json;
     }
@@ -112,11 +112,11 @@ export function UpdateQuestionAttemptRequestFromJSONTyped(json: any, ignoreDiscr
     };
 }
 
-export function UpdateQuestionAttemptRequestToJSON(json: any): UpdateQuestionAttemptRequest {
-    return UpdateQuestionAttemptRequestToJSONTyped(json, false);
+export function CheckQuestionAnswerRequestToJSON(json: any): CheckQuestionAnswerRequest {
+    return CheckQuestionAnswerRequestToJSONTyped(json, false);
 }
 
-export function UpdateQuestionAttemptRequestToJSONTyped(value?: UpdateQuestionAttemptRequest | null, ignoreDiscriminator: boolean = false): any {
+export function CheckQuestionAnswerRequestToJSONTyped(value?: CheckQuestionAnswerRequest | null, ignoreDiscriminator: boolean = false): any {
     if (value == null) {
         return value;
     }

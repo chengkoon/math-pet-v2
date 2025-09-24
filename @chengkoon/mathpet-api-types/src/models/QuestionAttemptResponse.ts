@@ -62,12 +62,6 @@ export interface QuestionAttemptResponse {
      */
     status: QuestionAttemptResponseStatusEnum;
     /**
-     * Whether the answer has been answered
-     * @type {boolean}
-     * @memberof QuestionAttemptResponse
-     */
-    wasAnswered?: boolean;
-    /**
      * Whether the answer is correct
      * @type {boolean}
      * @memberof QuestionAttemptResponse
@@ -134,7 +128,6 @@ export function QuestionAttemptResponseFromJSONTyped(json: any, ignoreDiscrimina
         'studentAnswer': json['studentAnswer'] == null ? undefined : json['studentAnswer'],
         'selectedOptionId': json['selectedOptionId'] == null ? undefined : json['selectedOptionId'],
         'status': json['status'],
-        'wasAnswered': json['wasAnswered'] == null ? undefined : json['wasAnswered'],
         'isCorrect': json['isCorrect'] == null ? undefined : json['isCorrect'],
         'timeSpentSeconds': json['timeSpentSeconds'] == null ? undefined : json['timeSpentSeconds'],
         'attemptNumber': json['attemptNumber'] == null ? undefined : json['attemptNumber'],
@@ -160,7 +153,6 @@ export function QuestionAttemptResponseToJSONTyped(value?: QuestionAttemptRespon
         'studentAnswer': value['studentAnswer'],
         'selectedOptionId': value['selectedOptionId'],
         'status': value['status'],
-        'wasAnswered': value['wasAnswered'],
         'isCorrect': value['isCorrect'],
         'timeSpentSeconds': value['timeSpentSeconds'],
         'attemptNumber': value['attemptNumber'],
