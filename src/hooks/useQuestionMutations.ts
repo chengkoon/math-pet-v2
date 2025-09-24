@@ -1,14 +1,14 @@
 import { useCallback } from 'react';
 import { useUpdateQuestionAttempt } from '@/hooks/use-practice';
 import type { PracticeQuestionResponse } from '@chengkoon/mathpet-api-types';
+import type { QuestionStatuses } from '@/components/features/question-palette/question-status-utils';
 import { toast } from 'sonner';
 
 interface UseQuestionMutationsProps {
   sessionId: string;
   currentQuestionIndex: number;
-  setQuestionStatuses: React.Dispatch<
-    React.SetStateAction<Record<number, 'unanswered' | 'answered' | 'flagged'>>
-  >;
+  setQuestionStatuses: React.Dispatch<React.SetStateAction<QuestionStatuses>>;
+  workingSteps: string; // Working steps for current question
 }
 
 interface UseQuestionMutationsReturn {
@@ -31,6 +31,7 @@ export const useQuestionMutations = ({
   sessionId,
   currentQuestionIndex,
   setQuestionStatuses,
+  workingSteps,
 }: UseQuestionMutationsProps): UseQuestionMutationsReturn => {
   const updateQuestionAttemptMutation = useUpdateQuestionAttempt();
 
@@ -64,7 +65,7 @@ export const useQuestionMutations = ({
       // Update local state immediately for better UX
       setQuestionStatuses((prev) => ({
         ...prev,
-        [currentQuestionIndex]: 'answered',
+        [currentQuestionIndex]: 'ANSWERED',
       }));
 
       updateQuestionAttemptMutation.mutate(
@@ -85,7 +86,7 @@ export const useQuestionMutations = ({
             // Revert local state on error
             setQuestionStatuses((prev) => ({
               ...prev,
-              [currentQuestionIndex]: 'unanswered',
+              [currentQuestionIndex]: 'ENTERED',
             }));
           },
         }
@@ -124,7 +125,7 @@ export const useQuestionMutations = ({
       // Update local state immediately for better UX
       setQuestionStatuses((prev) => ({
         ...prev,
-        [currentQuestionIndex]: 'answered',
+        [currentQuestionIndex]: 'ANSWERED',
       }));
 
       updateQuestionAttemptMutation.mutate(
@@ -133,6 +134,7 @@ export const useQuestionMutations = ({
           request: {
             attemptId: currentAttempt.id,
             questionId: question.question.id,
+            studentWorkingSteps: workingSteps ? [workingSteps] : [''],
             questionIndex: currentQuestionIndex,
             studentAnswer: answerText.trim(),
             timeSpentSeconds: 0, // TODO: Track actual time spent
@@ -144,7 +146,7 @@ export const useQuestionMutations = ({
             // Revert local state on error
             setQuestionStatuses((prev) => ({
               ...prev,
-              [currentQuestionIndex]: 'unanswered',
+              [currentQuestionIndex]: 'ENTERED',
             }));
           },
         }
@@ -155,6 +157,7 @@ export const useQuestionMutations = ({
       currentQuestionIndex,
       setQuestionStatuses,
       updateQuestionAttemptMutation,
+      workingSteps,
     ]
   );
 

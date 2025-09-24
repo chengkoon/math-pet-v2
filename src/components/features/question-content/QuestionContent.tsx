@@ -10,7 +10,10 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Flag } from 'lucide-react';
 import Image from 'next/image';
-import type { PracticeQuestionResponse } from '@chengkoon/mathpet-api-types';
+import type {
+  PracticeQuestionResponse,
+  QuestionAttemptResponseStatusEnum,
+} from '@chengkoon/mathpet-api-types';
 
 interface QuestionContentProps {
   question: PracticeQuestionResponse | undefined;
@@ -18,10 +21,12 @@ interface QuestionContentProps {
   totalQuestions: number;
   mcqAnswer: number | undefined;
   shortAnswer: string;
-  questionStatus: 'unanswered' | 'answered' | 'flagged';
+  workingSteps: string;
+  questionStatus: QuestionAttemptResponseStatusEnum | undefined;
   isSubmittingAnswer: boolean;
   onMcqAnswerChange: (optionIndex: number) => void;
   onShortAnswerChange: (answer: string) => void;
+  onWorkingStepsChange: (steps: string) => void;
   onShortAnswerSubmit: () => void;
   onFlagToggle: () => void;
 }
@@ -38,10 +43,12 @@ const QuestionContent = ({
   totalQuestions,
   mcqAnswer,
   shortAnswer,
+  workingSteps,
   questionStatus,
   isSubmittingAnswer,
   onMcqAnswerChange,
   onShortAnswerChange,
+  onWorkingStepsChange,
   onShortAnswerSubmit,
   onFlagToggle,
 }: QuestionContentProps) => {
@@ -91,6 +98,14 @@ const QuestionContent = ({
     [onShortAnswerChange]
   );
 
+  // Handle working steps change - MUST be called unconditionally
+  const handleWorkingStepsChange = useCallback(
+    (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+      onWorkingStepsChange(e.target.value);
+    },
+    [onWorkingStepsChange]
+  );
+
   // Type safety checks - AFTER hooks are called
   if (!question?.question) {
     return (
@@ -125,10 +140,10 @@ const QuestionContent = ({
             variant="ghost"
             size="sm"
             onClick={onFlagToggle}
-            className={questionStatus === 'flagged' ? 'text-orange-500' : ''}
+            className={questionStatus === 'ANSWERED' ? 'text-orange-500' : ''}
           >
             <Flag className="mr-1 h-4 w-4" />
-            {questionStatus === 'flagged' ? 'Flagged' : 'Flag'}
+            {questionStatus === 'ANSWERED' ? 'Flagged' : 'Flag'}
           </Button>
         </div>
         <Progress value={progress} className="mt-2 w-full" />
@@ -217,10 +232,12 @@ const QuestionContent = ({
               <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Working Space (Optional):
               </label>
-              <div className="h-40 w-full rounded border border-gray-200 bg-white dark:border-gray-600 dark:bg-gray-700">
-                {/* TODO: This could be enhanced with a drawing canvas or rich text editor */}
-                <div className="bg-dot-pattern h-full w-full opacity-20"></div>
-              </div>
+              <Textarea
+                className="h-40 resize-none font-mono"
+                placeholder="Show your working steps here... (one step per line)"
+                value={workingSteps}
+                onChange={handleWorkingStepsChange}
+              />
             </div>
           </div>
         )}

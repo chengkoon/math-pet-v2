@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import type { PracticeSessionResponse } from '@chengkoon/mathpet-api-types';
+import type { QuestionStatuses } from '@/components/features/question-palette/question-status-utils';
 
 // Type-safe interfaces
 interface McqAnswers {
@@ -12,8 +13,8 @@ interface ShortAnswers {
   [questionIndex: number]: string; // Answer text
 }
 
-interface QuestionStatuses {
-  [questionIndex: number]: 'unanswered' | 'answered' | 'flagged';
+interface WorkingSteps {
+  [questionIndex: number]: string; // Working steps text (will be split by lines)
 }
 
 interface UseQuestionViewerStateProps {
@@ -25,11 +26,15 @@ interface UseQuestionViewerStateReturn {
   currentQuestionIndex: number;
   mcqAnswers: McqAnswers;
   shortAnswers: ShortAnswers;
+  workingSteps: WorkingSteps;
   questionStatuses: QuestionStatuses;
   showMobilePalette: boolean;
 
   // Computed values
   answeredCount: number;
+
+  // State setters
+  setQuestionStatuses: React.Dispatch<React.SetStateAction<QuestionStatuses>>;
 
   // Actions
   navigation: {
@@ -43,6 +48,7 @@ interface UseQuestionViewerStateReturn {
   answers: {
     updateMcqAnswer: (questionIndex: number, optionIndex: number) => void;
     updateShortAnswer: (questionIndex: number, answer: string) => void;
+    updateWorkingSteps: (questionIndex: number, steps: string) => void;
     clearAnswer: (questionIndex: number) => void;
   };
 
@@ -64,6 +70,7 @@ export const useQuestionViewerState = ({
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [mcqAnswers, setMcqAnswers] = useState<McqAnswers>({});
   const [shortAnswers, setShortAnswers] = useState<ShortAnswers>({});
+  const [workingSteps, setWorkingSteps] = useState<WorkingSteps>({});
   const [questionStatuses, setQuestionStatuses] = useState<QuestionStatuses>(
     {}
   );
@@ -89,17 +96,18 @@ export const useQuestionViewerState = ({
 
   // Initialize question statuses from session attempts
   useEffect(() => {
+    console.log('session :', session);
     if (session?.questionAttempts && session.questionAttempts.length > 0) {
       const statuses: QuestionStatuses = {};
       // Use for...of loop to avoid function reference issues (Phase 1 fix)
       for (const attempt of session.questionAttempts) {
         if (attempt.questionIndex !== undefined) {
-          statuses[attempt.questionIndex] = 'answered';
+          statuses[attempt.questionIndex] = attempt.status;
         }
       }
       setQuestionStatuses(statuses);
     }
-  }, [questionAttemptsKey, session?.questionAttempts]); // Include both dependencies
+  }, [questionAttemptsKey, session]); // Include session dependency but use stable questionAttemptsKey
 
   // Calculate answered count
   const answeredCount = useMemo(() => {
@@ -175,6 +183,13 @@ export const useQuestionViewerState = ({
         });
       },
 
+      updateWorkingSteps: (questionIndex: number, steps: string) => {
+        setWorkingSteps((prev) => ({
+          ...prev,
+          [questionIndex]: steps,
+        }));
+      },
+
       clearAnswer: (questionIndex: number) => {
         setMcqAnswers((prev) => {
           const newAnswers = { ...prev };
@@ -186,9 +201,14 @@ export const useQuestionViewerState = ({
           delete newAnswers[questionIndex];
           return newAnswers;
         });
+        setWorkingSteps((prev) => {
+          const newAnswers = { ...prev };
+          delete newAnswers[questionIndex];
+          return newAnswers;
+        });
         setQuestionStatuses((prev) => ({
           ...prev,
-          [questionIndex]: 'unanswered',
+          [questionIndex]: 'ANSWERED',
         }));
       },
     }),
@@ -201,15 +221,14 @@ export const useQuestionViewerState = ({
       toggleFlag: (questionIndex: number) => {
         setQuestionStatuses((prev) => ({
           ...prev,
-          [questionIndex]:
-            prev[questionIndex] === 'flagged' ? 'unanswered' : 'flagged',
+          [questionIndex]: prev[questionIndex],
         }));
       },
 
       setAnswered: (questionIndex: number) => {
         setQuestionStatuses((prev) => ({
           ...prev,
-          [questionIndex]: 'answered',
+          [questionIndex]: 'ANSWERED',
         }));
       },
     }),
@@ -221,11 +240,15 @@ export const useQuestionViewerState = ({
     currentQuestionIndex,
     mcqAnswers,
     shortAnswers,
+    workingSteps,
     questionStatuses,
     showMobilePalette,
 
     // Computed values
     answeredCount,
+
+    // State setters
+    setQuestionStatuses,
 
     // Actions
     navigation,

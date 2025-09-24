@@ -4,13 +4,14 @@ import { useCallback, useMemo, memo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { CheckCircle2, Flag, Clock } from 'lucide-react';
+import { Clock } from 'lucide-react';
 import type { PracticeSessionResponse } from '@chengkoon/mathpet-api-types';
 import VirtualQuestionGrid from './VirtualQuestionGrid';
-
-interface QuestionStatuses {
-  [questionIndex: number]: 'unanswered' | 'answered' | 'flagged';
-}
+import {
+  getQuestionStatusIconByIndex,
+  getQuestionStatusColorByIndex,
+  type QuestionStatuses,
+} from './question-status-utils';
 
 interface QuestionPaletteProps {
   session: PracticeSessionResponse;
@@ -48,38 +49,6 @@ const QuestionPalette = ({
     }
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   }, []);
-
-  // Get question status icon
-  const getQuestionStatusIcon = useCallback(
-    (index: number) => {
-      const status = questionStatuses[index];
-      switch (status) {
-        case 'answered':
-          return <CheckCircle2 className="h-4 w-4 text-green-600" />;
-        case 'flagged':
-          return <Flag className="h-4 w-4 text-orange-500" />;
-        default:
-          return null;
-      }
-    },
-    [questionStatuses]
-  );
-
-  // Get question status styling
-  const getQuestionStatusColor = useCallback(
-    (index: number): string => {
-      const status = questionStatuses[index];
-      switch (status) {
-        case 'answered':
-          return 'bg-green-100 border-green-300 text-green-800 hover:bg-green-150';
-        case 'flagged':
-          return 'bg-orange-100 border-orange-300 text-orange-800 hover:bg-orange-150';
-        default:
-          return 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100';
-      }
-    },
-    [questionStatuses]
-  );
 
   // Handle question navigation
   const handleQuestionClick = useCallback(
@@ -150,14 +119,14 @@ const QuestionPalette = ({
                 onClick={() => handleQuestionClick(index)}
                 className={`relative h-10 w-10 p-0 ${
                   index !== currentQuestionIndex
-                    ? getQuestionStatusColor(index)
+                    ? getQuestionStatusColorByIndex(index, questionStatuses)
                     : ''
                 }`}
               >
                 <span className="text-xs font-medium">{index + 1}</span>
                 {index !== currentQuestionIndex && (
                   <div className="absolute -top-1 -right-1">
-                    {getQuestionStatusIcon(index)}
+                    {getQuestionStatusIconByIndex(index, questionStatuses)}
                   </div>
                 )}
               </Button>

@@ -11,15 +11,17 @@ import {
   useState,
 } from 'react';
 import { Button } from '@/components/ui/button';
-import { CheckCircle2, Flag, X } from 'lucide-react';
+import { X } from 'lucide-react';
 import type { PracticeSessionResponse } from '@chengkoon/mathpet-api-types';
+import {
+  getQuestionStatusIconByIndex,
+  getQuestionStatusColorByIndex,
+  getQuestionAccessibilityLabelByIndex,
+  type QuestionStatuses,
+} from './question-status-utils';
 
 // Lazy load heavy components for better mobile performance
 const LazyVirtualQuestionGrid = lazy(() => import('./VirtualQuestionGrid'));
-
-interface QuestionStatuses {
-  [questionIndex: number]: 'unanswered' | 'answered' | 'flagged';
-}
 
 interface OptimizedMobileQuestionPaletteProps {
   session: PracticeSessionResponse;
@@ -240,7 +242,6 @@ const OptimizedMobileQuestionPalette = ({
             // Simple grid for smaller question sets
             <div className="grid grid-cols-4 gap-3 py-4">
               {Array.from({ length: session.totalQuestions }, (_, index) => {
-                const status = questionStatuses[index];
                 const isCurrent = index === currentQuestionIndex;
 
                 return (
@@ -253,26 +254,21 @@ const OptimizedMobileQuestionPalette = ({
                       onClose();
                     }}
                     className={`relative h-12 w-full ${
-                      !isCurrent && status === 'answered'
-                        ? 'hover:bg-green-150 border-green-300 bg-green-100 text-green-800'
-                        : !isCurrent && status === 'flagged'
-                          ? 'hover:bg-orange-150 border-orange-300 bg-orange-100 text-orange-800'
-                          : ''
+                      !isCurrent
+                        ? getQuestionStatusColorByIndex(index, questionStatuses)
+                        : ''
                     }`}
-                    aria-label={`Question ${index + 1}${
-                      status === 'answered'
-                        ? ', answered'
-                        : status === 'flagged'
-                          ? ', flagged'
-                          : ', not answered'
-                    }${isCurrent ? ', currently selected' : ''}`}
+                    aria-label={getQuestionAccessibilityLabelByIndex(
+                      index,
+                      questionStatuses,
+                      currentQuestionIndex
+                    )}
                   >
                     <span className="font-medium">{index + 1}</span>
-                    {!isCurrent && status === 'answered' && (
-                      <CheckCircle2 className="absolute -top-1 -right-1 h-4 w-4 text-green-600" />
-                    )}
-                    {!isCurrent && status === 'flagged' && (
-                      <Flag className="absolute -top-1 -right-1 h-4 w-4 text-orange-500" />
+                    {!isCurrent && (
+                      <div className="absolute -top-1 -right-1">
+                        {getQuestionStatusIconByIndex(index, questionStatuses)}
+                      </div>
                     )}
                   </Button>
                 );

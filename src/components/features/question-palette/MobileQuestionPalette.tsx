@@ -1,13 +1,15 @@
 'use client';
 
-import { useCallback, useEffect, useRef, memo, useMemo } from 'react';
+import { useCallback, useEffect, useRef, memo } from 'react';
 import { Button } from '@/components/ui/button';
-import { CheckCircle2, Flag, X } from 'lucide-react';
+import { X } from 'lucide-react';
 import type { PracticeSessionResponse } from '@chengkoon/mathpet-api-types';
-
-interface QuestionStatuses {
-  [questionIndex: number]: 'unanswered' | 'answered' | 'flagged';
-}
+import {
+  getQuestionStatusIconByIndex,
+  getQuestionStatusColorByIndex,
+  getQuestionAccessibilityLabelByIndex,
+  type QuestionStatuses,
+} from './question-status-utils';
 
 interface MobileQuestionPaletteProps {
   session: PracticeSessionResponse;
@@ -38,38 +40,6 @@ const MobileQuestionPalette = ({
   // Refs for focus management
   const modalRef = useRef<HTMLDivElement>(null);
   const firstFocusableRef = useRef<HTMLButtonElement>(null);
-
-  // Get question status icon
-  const getQuestionStatusIcon = useCallback(
-    (index: number) => {
-      const status = questionStatuses[index];
-      switch (status) {
-        case 'answered':
-          return <CheckCircle2 className="h-4 w-4 text-green-600" />;
-        case 'flagged':
-          return <Flag className="h-4 w-4 text-orange-500" />;
-        default:
-          return null;
-      }
-    },
-    [questionStatuses]
-  );
-
-  // Get question status styling
-  const getQuestionStatusColor = useCallback(
-    (index: number): string => {
-      const status = questionStatuses[index];
-      switch (status) {
-        case 'answered':
-          return 'bg-green-100 border-green-300 text-green-800 hover:bg-green-150';
-        case 'flagged':
-          return 'bg-orange-100 border-orange-300 text-orange-800 hover:bg-orange-150';
-        default:
-          return 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100';
-      }
-    },
-    [questionStatuses]
-  );
 
   // Handle question navigation and close modal
   const handleQuestionClick = useCallback(
@@ -211,21 +181,19 @@ const MobileQuestionPalette = ({
                   onClick={() => handleQuestionClick(index)}
                   className={`relative h-12 w-12 touch-manipulation p-0 ${
                     index !== currentQuestionIndex
-                      ? getQuestionStatusColor(index)
+                      ? getQuestionStatusColorByIndex(index, questionStatuses)
                       : ''
                   }`}
-                  aria-label={`Go to question ${index + 1}${
-                    index === currentQuestionIndex ? ' (current)' : ''
-                  }${
-                    questionStatuses[index] === 'answered' ? ' (answered)' : ''
-                  }${
-                    questionStatuses[index] === 'flagged' ? ' (flagged)' : ''
-                  }`}
+                  aria-label={getQuestionAccessibilityLabelByIndex(
+                    index,
+                    questionStatuses,
+                    currentQuestionIndex
+                  )}
                 >
                   <span className="text-sm font-medium">{index + 1}</span>
                   {index !== currentQuestionIndex && (
                     <div className="absolute -top-1 -right-1">
-                      {getQuestionStatusIcon(index)}
+                      {getQuestionStatusIconByIndex(index, questionStatuses)}
                     </div>
                   )}
                 </Button>

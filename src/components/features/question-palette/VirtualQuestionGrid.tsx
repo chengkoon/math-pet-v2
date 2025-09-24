@@ -1,12 +1,13 @@
 'use client';
 
 import { memo, useMemo, useCallback, useState, useEffect, useRef } from 'react';
+import type { QuestionAttemptResponseStatusEnum } from '@chengkoon/mathpet-api-types';
 import { Button } from '@/components/ui/button';
-import { CheckCircle2, Flag } from 'lucide-react';
-
-interface QuestionStatuses {
-  [questionIndex: number]: 'unanswered' | 'answered' | 'flagged';
-}
+import {
+  getQuestionStatusIconByIndex,
+  getQuestionStatusColorByIndex,
+  type QuestionStatuses,
+} from './question-status-utils';
 
 interface VirtualQuestionGridProps {
   totalQuestions: number;
@@ -96,42 +97,6 @@ const VirtualQuestionGrid = ({
     setScrollTop(e.currentTarget.scrollTop);
   }, []);
 
-  // Get question status styling - memoized
-  const getQuestionStatusColor = useCallback(
-    (index: number): string => {
-      const status = questionStatuses[index];
-      switch (status) {
-        case 'answered':
-          return 'bg-green-100 border-green-300 text-green-800 hover:bg-green-150 dark:bg-green-900 dark:border-green-700 dark:text-green-200';
-        case 'flagged':
-          return 'bg-orange-100 border-orange-300 text-orange-800 hover:bg-orange-150 dark:bg-orange-900 dark:border-orange-700 dark:text-orange-200';
-        default:
-          return 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100 dark:bg-gray-800 dark:border-gray-600 dark:text-gray-300';
-      }
-    },
-    [questionStatuses]
-  );
-
-  // Get question status icon - memoized
-  const getQuestionStatusIcon = useCallback(
-    (index: number) => {
-      const status = questionStatuses[index];
-      switch (status) {
-        case 'answered':
-          return (
-            <CheckCircle2 className="h-3 w-3 text-green-600 dark:text-green-400" />
-          );
-        case 'flagged':
-          return (
-            <Flag className="h-3 w-3 text-orange-500 dark:text-orange-400" />
-          );
-        default:
-          return null;
-      }
-    },
-    [questionStatuses]
-  );
-
   // Auto-scroll to current question when it changes
   useEffect(() => {
     if (scrollElementRef.current) {
@@ -201,7 +166,10 @@ const VirtualQuestionGrid = ({
                   onClick={() => onNavigateToQuestion(questionIndex)}
                   className={`relative h-10 w-10 p-0 ${
                     questionIndex !== currentQuestionIndex
-                      ? getQuestionStatusColor(questionIndex)
+                      ? getQuestionStatusColorByIndex(
+                          questionIndex,
+                          questionStatuses
+                        )
                       : ''
                   }`}
                   style={{ height: itemHeight }}
@@ -211,7 +179,11 @@ const VirtualQuestionGrid = ({
                   </span>
                   {questionIndex !== currentQuestionIndex && (
                     <div className="absolute -top-1 -right-1">
-                      {getQuestionStatusIcon(questionIndex)}
+                      {getQuestionStatusIconByIndex(
+                        questionIndex,
+                        questionStatuses,
+                        'h-3 w-3'
+                      )}
                     </div>
                   )}
                 </Button>

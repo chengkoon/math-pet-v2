@@ -48,12 +48,14 @@ function QuestionViewer({ sessionId, onComplete }: QuestionViewerProps) {
     currentQuestionIndex,
     mcqAnswers,
     shortAnswers,
+    workingSteps,
     questionStatuses,
     showMobilePalette,
     answeredCount,
     navigation,
     answers,
     status,
+    setQuestionStatuses, // Add this line to get the setState function
   } = useQuestionViewerState({ session });
 
   const { data: currentQuestion, isLoading: questionLoading } =
@@ -89,14 +91,8 @@ function QuestionViewer({ sessionId, onComplete }: QuestionViewerProps) {
     useQuestionMutations({
       sessionId,
       currentQuestionIndex,
-      setQuestionStatuses: (statuses) => {
-        // Custom handler to bridge the different function signatures
-        Object.entries(statuses).forEach(([index, statusValue]) => {
-          if (statusValue === 'answered') {
-            status.setAnswered(parseInt(index));
-          }
-        });
-      },
+      workingSteps: workingSteps[currentQuestionIndex] || '',
+      setQuestionStatuses,
     });
 
   // Handle MCQ answer selection (without submission)
@@ -226,13 +222,15 @@ function QuestionViewer({ sessionId, onComplete }: QuestionViewerProps) {
                   totalQuestions={session.totalQuestions}
                   mcqAnswer={mcqAnswers[currentQuestionIndex]}
                   shortAnswer={shortAnswers[currentQuestionIndex] || ''}
-                  questionStatus={
-                    questionStatuses[currentQuestionIndex] || 'unanswered'
-                  }
+                  workingSteps={workingSteps[currentQuestionIndex] || ''}
+                  questionStatus={questionStatuses[currentQuestionIndex]}
                   isSubmittingAnswer={isSubmittingAnswer}
                   onMcqAnswerChange={handleMcqAnswerChange}
                   onShortAnswerChange={(answer) =>
                     answers.updateShortAnswer(currentQuestionIndex, answer)
+                  }
+                  onWorkingStepsChange={(steps) =>
+                    answers.updateWorkingSteps(currentQuestionIndex, steps)
                   }
                   onShortAnswerSubmit={handleShortAnswerSubmit}
                   onFlagToggle={handleFlagToggle}
