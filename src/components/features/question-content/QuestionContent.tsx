@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Flag } from 'lucide-react';
 import Image from 'next/image';
+import { WorkingSteps } from '../working-steps/WorkingSteps';
 import type {
   PracticeQuestionResponse,
   QuestionAttemptResponseStatusEnum,
@@ -21,12 +22,12 @@ interface QuestionContentProps {
   totalQuestions: number;
   mcqAnswer: number | undefined;
   shortAnswer: string;
-  workingSteps: string;
+  workingSteps: string[];
   questionStatus: QuestionAttemptResponseStatusEnum | undefined;
   isSubmittingAnswer: boolean;
   onMcqAnswerChange: (optionIndex: number) => void;
   onShortAnswerChange: (answer: string) => void;
-  onWorkingStepsChange: (steps: string) => void;
+  onWorkingStepsChange: (steps: string[]) => void;
   onShortAnswerSubmit: () => void;
   onFlagToggle: () => void;
 }
@@ -100,8 +101,8 @@ const QuestionContent = ({
 
   // Handle working steps change - MUST be called unconditionally
   const handleWorkingStepsChange = useCallback(
-    (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-      onWorkingStepsChange(e.target.value);
+    (steps: string[]) => {
+      onWorkingStepsChange(steps);
     },
     [onWorkingStepsChange]
   );
@@ -227,16 +228,12 @@ const QuestionContent = ({
               </Button>
             </div>
 
-            {/* Working Space */}
+            {/* Working Steps */}
             <div className="rounded-lg border border-gray-300 bg-gray-50 p-4 dark:border-gray-600 dark:bg-gray-800">
-              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Working Space (Optional):
-              </label>
-              <Textarea
-                className="h-40 resize-none font-mono"
-                placeholder="Show your working steps here... (one step per line)"
-                value={workingSteps}
+              <WorkingSteps
+                steps={workingSteps}
                 onChange={handleWorkingStepsChange}
+                disabled={isSubmittingAnswer}
               />
             </div>
           </div>

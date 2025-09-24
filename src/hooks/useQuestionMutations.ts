@@ -1,6 +1,9 @@
 import { useCallback } from 'react';
 import { useUpdateQuestionAttempt } from '@/hooks/use-practice';
-import type { PracticeQuestionResponse } from '@chengkoon/mathpet-api-types';
+import type {
+  PracticeQuestionResponse,
+  UpdateQuestionAttemptRequest,
+} from '@chengkoon/mathpet-api-types';
 import type { QuestionStatuses } from '@/components/features/question-palette/question-status-utils';
 import { toast } from 'sonner';
 
@@ -8,7 +11,7 @@ interface UseQuestionMutationsProps {
   sessionId: string;
   currentQuestionIndex: number;
   setQuestionStatuses: React.Dispatch<React.SetStateAction<QuestionStatuses>>;
-  workingSteps: string; // Working steps for current question
+  workingSteps: string[]; // Working steps for current question
 }
 
 interface UseQuestionMutationsReturn {
@@ -128,18 +131,24 @@ export const useQuestionMutations = ({
         [currentQuestionIndex]: 'ANSWERED',
       }));
 
+      // Prepare working steps - only include if there are valid steps
+      const validWorkingSteps = workingSteps.filter((step) => step.trim());
+      const requestPayload: UpdateQuestionAttemptRequest = {
+        attemptId: currentAttempt.id,
+        questionId: question.question.id,
+        questionIndex: currentQuestionIndex,
+        studentAnswer: answerText.trim(),
+        timeSpentSeconds: 0, // TODO: Track actual time spent
+        action: 'ANSWER' as const,
+        ...(validWorkingSteps.length > 0 && {
+          studentWorkingSteps: validWorkingSteps,
+        }),
+      };
+
       updateQuestionAttemptMutation.mutate(
         {
           sessionId,
-          request: {
-            attemptId: currentAttempt.id,
-            questionId: question.question.id,
-            studentWorkingSteps: workingSteps ? [workingSteps] : [''],
-            questionIndex: currentQuestionIndex,
-            studentAnswer: answerText.trim(),
-            timeSpentSeconds: 0, // TODO: Track actual time spent
-            action: 'ANSWER' as const,
-          },
+          request: requestPayload,
         },
         {
           onError: () => {

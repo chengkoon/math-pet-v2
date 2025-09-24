@@ -14,7 +14,7 @@ interface ShortAnswers {
 }
 
 interface WorkingSteps {
-  [questionIndex: number]: string; // Working steps text (will be split by lines)
+  [questionIndex: number]: string[]; // Array of working step strings
 }
 
 interface UseQuestionViewerStateProps {
@@ -48,7 +48,7 @@ interface UseQuestionViewerStateReturn {
   answers: {
     updateMcqAnswer: (questionIndex: number, optionIndex: number) => void;
     updateShortAnswer: (questionIndex: number, answer: string) => void;
-    updateWorkingSteps: (questionIndex: number, steps: string) => void;
+    updateWorkingSteps: (questionIndex: number, steps: string[]) => void;
     clearAnswer: (questionIndex: number) => void;
   };
 
@@ -183,7 +183,7 @@ export const useQuestionViewerState = ({
         });
       },
 
-      updateWorkingSteps: (questionIndex: number, steps: string) => {
+      updateWorkingSteps: (questionIndex: number, steps: string[]) => {
         setWorkingSteps((prev) => ({
           ...prev,
           [questionIndex]: steps,

@@ -91,7 +91,7 @@ function QuestionViewer({ sessionId, onComplete }: QuestionViewerProps) {
     useQuestionMutations({
       sessionId,
       currentQuestionIndex,
-      workingSteps: workingSteps[currentQuestionIndex] || '',
+      workingSteps: workingSteps[currentQuestionIndex] || [],
       setQuestionStatuses,
     });
 
@@ -222,7 +222,7 @@ function QuestionViewer({ sessionId, onComplete }: QuestionViewerProps) {
                   totalQuestions={session.totalQuestions}
                   mcqAnswer={mcqAnswers[currentQuestionIndex]}
                   shortAnswer={shortAnswers[currentQuestionIndex] || ''}
-                  workingSteps={workingSteps[currentQuestionIndex] || ''}
+                  workingSteps={workingSteps[currentQuestionIndex] || []}
                   questionStatus={questionStatuses[currentQuestionIndex]}
                   isSubmittingAnswer={isSubmittingAnswer}
                   onMcqAnswerChange={handleMcqAnswerChange}
