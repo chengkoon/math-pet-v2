@@ -207,6 +207,14 @@ const QuestionContent = ({
         {/* Short Answer Area */}
         {!isMCQ && (
           <div className="space-y-4">
+            {/* Working Steps */}
+            <div className="rounded-lg border border-gray-300 bg-gray-50 p-4 dark:border-gray-600 dark:bg-gray-800">
+              <WorkingSteps
+                steps={workingSteps}
+                onChange={handleWorkingStepsChange}
+                disabled={isSubmittingAnswer}
+              />
+            </div>
             <div className="rounded-lg border border-gray-300 bg-gray-50 p-4 dark:border-gray-600 dark:bg-gray-800">
               <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Your Answer:
@@ -216,15 +224,6 @@ const QuestionContent = ({
                 placeholder="Write your answer here..."
                 value={shortAnswer}
                 onChange={handleTextareaChange}
-              />
-            </div>
-
-            {/* Working Steps */}
-            <div className="rounded-lg border border-gray-300 bg-gray-50 p-4 dark:border-gray-600 dark:bg-gray-800">
-              <WorkingSteps
-                steps={workingSteps}
-                onChange={handleWorkingStepsChange}
-                disabled={isSubmittingAnswer}
               />
             </div>
           </div>
