@@ -56,6 +56,12 @@ export interface UpdateQuestionAttemptRequest {
      */
     timeSpentSeconds: number;
     /**
+     * Array of working steps showing the student's work process
+     * @type {Array<string>}
+     * @memberof UpdateQuestionAttemptRequest
+     */
+    studentWorkingSteps?: Array<string>;
+    /**
      * Action to perform - either submit an answer or skip the question
      * @type {string}
      * @memberof UpdateQuestionAttemptRequest
@@ -101,6 +107,7 @@ export function UpdateQuestionAttemptRequestFromJSONTyped(json: any, ignoreDiscr
         'studentAnswer': json['studentAnswer'] == null ? undefined : json['studentAnswer'],
         'selectedOptionId': json['selectedOptionId'] == null ? undefined : json['selectedOptionId'],
         'timeSpentSeconds': json['timeSpentSeconds'],
+        'studentWorkingSteps': json['studentWorkingSteps'] == null ? undefined : json['studentWorkingSteps'],
         'action': json['action'],
     };
 }
@@ -122,6 +129,7 @@ export function UpdateQuestionAttemptRequestToJSONTyped(value?: UpdateQuestionAt
         'studentAnswer': value['studentAnswer'],
         'selectedOptionId': value['selectedOptionId'],
         'timeSpentSeconds': value['timeSpentSeconds'],
+        'studentWorkingSteps': value['studentWorkingSteps'],
         'action': value['action'],
     };
 }
