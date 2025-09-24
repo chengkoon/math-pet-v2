@@ -87,13 +87,12 @@ function QuestionViewer({ sessionId, onComplete }: QuestionViewerProps) {
   ]);
 
   // Mutation hook - all API calls
-  const { submitMcqAnswer, submitShortAnswer, isSubmittingAnswer } =
-    useQuestionMutations({
-      sessionId,
-      currentQuestionIndex,
-      workingSteps: workingSteps[currentQuestionIndex] || [],
-      setQuestionStatuses,
-    });
+  const { submitAnswer, isSubmittingAnswer } = useQuestionMutations({
+    sessionId,
+    currentQuestionIndex,
+    workingSteps: workingSteps[currentQuestionIndex] || [],
+    setQuestionStatuses,
+  });
 
   // Handle MCQ answer selection (without submission)
   const handleMcqAnswerChange = (optionIndex: number) => {
@@ -107,10 +106,16 @@ function QuestionViewer({ sessionId, onComplete }: QuestionViewerProps) {
 
     if (currentMcqAnswer !== undefined) {
       // Submit MCQ answer
-      submitMcqAnswer(currentMcqAnswer, currentQuestion);
+      submitAnswer({
+        optionIndex: currentMcqAnswer,
+        question: currentQuestion,
+      });
     } else if (currentShortAnswer?.trim()) {
       // Submit short answer
-      submitShortAnswer(currentShortAnswer, currentQuestion);
+      submitAnswer({
+        answerText: currentShortAnswer,
+        question: currentQuestion,
+      });
     } else {
       // No answer selected, show toast
       toast.warning('Please select an answer before checking.');

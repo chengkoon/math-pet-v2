@@ -14,15 +14,14 @@ interface UseQuestionMutationsProps {
   workingSteps: string[]; // Working steps for current question
 }
 
+interface SubmitAnswerParams {
+  question?: PracticeQuestionResponse | undefined;
+  answerText?: string | undefined;
+  optionIndex?: number | undefined;
+}
+
 interface UseQuestionMutationsReturn {
-  submitMcqAnswer: (
-    optionIndex: number,
-    question?: PracticeQuestionResponse
-  ) => void;
-  submitShortAnswer: (
-    answerText: string,
-    question?: PracticeQuestionResponse
-  ) => void;
+  submitAnswer: (params: SubmitAnswerParams) => void;
   isSubmittingAnswer: boolean;
 }
 
@@ -38,75 +37,11 @@ export const useQuestionMutations = ({
 }: UseQuestionMutationsProps): UseQuestionMutationsReturn => {
   const checkQuestionAnswerMutation = useCheckQuestionAnswer();
 
-  const submitMcqAnswer = useCallback(
-    (optionIndex: number, question?: PracticeQuestionResponse) => {
-      if (
-        !question?.components ||
-        !question.components[optionIndex] ||
-        !question.question?.id
-      ) {
-        toast.error('Unable to submit answer. Please try again.');
-        return;
-      }
-
-      const selectedOption = question.components[optionIndex];
-      if (!selectedOption?.id) {
-        toast.error('Invalid option selected. Please try again.');
-        return;
-      }
-
-      // Get the current attempt ID from the question's attempts
-      const currentAttempt = question.attempts?.find(
-        (attempt) => attempt.questionIndex === currentQuestionIndex
-      );
-
-      if (!currentAttempt?.id) {
-        toast.error('Unable to find attempt record. Please try again.');
-        return;
-      }
-
-      // Update local state immediately for better UX
-      setQuestionStatuses((prev) => ({
-        ...prev,
-        [currentQuestionIndex]: 'ANSWERED',
-      }));
-
-      checkQuestionAnswerMutation.mutate(
-        {
-          sessionId,
-          request: {
-            attemptId: currentAttempt.id,
-            questionId: question.question.id,
-            questionIndex: currentQuestionIndex,
-            studentAnswer: selectedOption.contentText || '',
-            selectedOptionId: selectedOption.id,
-            timeSpentSeconds: 0, // TODO: Track actual time spent
-            action: 'ANSWER' as const,
-          },
-        },
-        {
-          onError: () => {
-            // Revert local state on error
-            setQuestionStatuses((prev) => ({
-              ...prev,
-              [currentQuestionIndex]: 'ENTERED',
-            }));
-          },
-        }
-      );
-    },
-    [
-      sessionId,
-      currentQuestionIndex,
-      setQuestionStatuses,
-      checkQuestionAnswerMutation,
-    ]
-  );
-
-  const submitShortAnswer = useCallback(
-    (answerText: string, question?: PracticeQuestionResponse) => {
-      if (!answerText.trim()) {
-        toast.error('Please enter an answer before submitting.');
+  const submitAnswer = useCallback(
+    ({ question, answerText, optionIndex }: SubmitAnswerParams) => {
+      // Validate that we have either answerText or optionIndex
+      if (!answerText && optionIndex === undefined) {
+        toast.error('Please provide an answer before submitting.');
         return;
       }
 
@@ -125,6 +60,37 @@ export const useQuestionMutations = ({
         return;
       }
 
+      let studentAnswer: string;
+      let selectedOptionId: number | undefined;
+
+      // Handle MCQ submission
+      if (optionIndex !== undefined) {
+        if (!question.components || !question.components[optionIndex]) {
+          toast.error('Invalid option selected. Please try again.');
+          return;
+        }
+
+        const selectedOption = question.components[optionIndex];
+        if (!selectedOption?.id) {
+          toast.error('Invalid option selected. Please try again.');
+          return;
+        }
+
+        studentAnswer = selectedOption.contentText || '';
+        selectedOptionId = selectedOption.id;
+      }
+      // Handle short answer submission
+      else if (answerText) {
+        if (!answerText.trim()) {
+          toast.error('Please enter an answer before submitting.');
+          return;
+        }
+        studentAnswer = answerText.trim();
+      } else {
+        toast.error('Please provide a valid answer.');
+        return;
+      }
+
       // Update local state immediately for better UX
       setQuestionStatuses((prev) => ({
         ...prev,
@@ -137,9 +103,10 @@ export const useQuestionMutations = ({
         attemptId: currentAttempt.id,
         questionId: question.question.id,
         questionIndex: currentQuestionIndex,
-        studentAnswer: answerText.trim(),
+        studentAnswer,
         timeSpentSeconds: 0, // TODO: Track actual time spent
         action: 'ANSWER' as const,
+        ...(selectedOptionId && { selectedOptionId }),
         ...(validWorkingSteps.length > 0 && {
           studentWorkingSteps: validWorkingSteps,
         }),
@@ -171,8 +138,7 @@ export const useQuestionMutations = ({
   );
 
   return {
-    submitMcqAnswer,
-    submitShortAnswer,
+    submitAnswer,
     isSubmittingAnswer: checkQuestionAnswerMutation.isPending,
   };
 };
