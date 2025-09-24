@@ -28,7 +28,6 @@ interface QuestionContentProps {
   onMcqAnswerChange: (optionIndex: number) => void;
   onShortAnswerChange: (answer: string) => void;
   onWorkingStepsChange: (steps: string[]) => void;
-  onShortAnswerSubmit: () => void;
   onFlagToggle: () => void;
 }
 
@@ -50,7 +49,6 @@ const QuestionContent = ({
   onMcqAnswerChange,
   onShortAnswerChange,
   onWorkingStepsChange,
-  onShortAnswerSubmit,
   onFlagToggle,
 }: QuestionContentProps) => {
   // ✅ PERFORMANCE: Memoize expensive MCQ options calculation
@@ -219,13 +217,6 @@ const QuestionContent = ({
                 value={shortAnswer}
                 onChange={handleTextareaChange}
               />
-              <Button
-                className="mt-2"
-                onClick={onShortAnswerSubmit}
-                disabled={!shortAnswer.trim() || isSubmittingAnswer}
-              >
-                {isSubmittingAnswer ? 'Submitting...' : 'Submit Answer'}
-              </Button>
             </div>
 
             {/* Working Steps */}

@@ -100,12 +100,6 @@ function QuestionViewer({ sessionId, onComplete }: QuestionViewerProps) {
     answers.updateMcqAnswer(currentQuestionIndex, optionIndex);
   };
 
-  // Handle short answer submission
-  const handleShortAnswerSubmit = () => {
-    const answerText = shortAnswers[currentQuestionIndex] || '';
-    submitShortAnswer(answerText, currentQuestion);
-  };
-
   // Handle check answer - submit the currently selected answer
   const handleCheckAnswer = () => {
     const currentMcqAnswer = mcqAnswers[currentQuestionIndex];
@@ -232,7 +226,6 @@ function QuestionViewer({ sessionId, onComplete }: QuestionViewerProps) {
                   onWorkingStepsChange={(steps) =>
                     answers.updateWorkingSteps(currentQuestionIndex, steps)
                   }
-                  onShortAnswerSubmit={handleShortAnswerSubmit}
                   onFlagToggle={handleFlagToggle}
                 />
               )}
