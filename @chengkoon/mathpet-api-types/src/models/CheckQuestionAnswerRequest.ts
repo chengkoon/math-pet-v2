@@ -74,6 +74,7 @@ export interface CheckQuestionAnswerRequest {
  * @export
  */
 export const CheckQuestionAnswerRequestActionEnum = {
+    Enter: 'ENTER',
     Answer: 'ANSWER',
     Skip: 'SKIP'
 } as const;

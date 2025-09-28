@@ -70,11 +70,6 @@ export const useQuestionViewerState = ({
   session,
   sessionId,
 }: UseQuestionViewerStateProps): UseQuestionViewerStateReturn => {
-  // Get current question data to check for previous attempts
-  const { data: currentQuestion } = usePracticeSessionQuestion(
-    sessionId,
-    session?.currentQuestionIndex ?? 0
-  );
   // Local state
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [mcqAnswers, setMcqAnswers] = useState<McqAnswers>({});
@@ -85,6 +80,13 @@ export const useQuestionViewerState = ({
   );
   const [showMobilePalette, setShowMobilePalette] = useState(false);
 
+  // Get current question data to check for previous attempts
+  // Use local currentQuestionIndex, not session.currentQuestionIndex
+  const { data: currentQuestion } = usePracticeSessionQuestion(
+    sessionId,
+    currentQuestionIndex
+  );
+  console.log('useQuestionViewerState -> currentQuestion ', currentQuestion);
   // Create stable dependency for questionAttempts (following Phase 1 pattern)
   const questionAttemptsKey = useMemo(() => {
     if (!session?.questionAttempts) return '';
@@ -151,6 +153,15 @@ export const useQuestionViewerState = ({
             [questionIndex]: latestAttempt.studentAnswer || '',
           }));
         }
+        if (
+          latestAttempt.studentWorkingSteps &&
+          latestAttempt.studentWorkingSteps.length > 0
+        ) {
+          setWorkingSteps((prev) => ({
+            ...prev,
+            [questionIndex]: latestAttempt.studentWorkingSteps || [],
+          }));
+        }
       }
     }
   }, [currentQuestion]);
@@ -166,12 +177,19 @@ export const useQuestionViewerState = ({
 
   // Check if current question is already answered
   const isCurrentQuestionAnswered = useMemo(() => {
-    console.log('memoing isCurrentQuestionAnswered...');
+    console.log(
+      'memoing isCurrentQuestionAnswered for question and index:',
+      currentQuestion,
+      currentQuestionIndex
+    );
     if (!currentQuestion?.attempts || currentQuestion.attempts.length === 0) {
+      console.log('No attempts found for current question');
       return false;
     }
-    return currentQuestion.attempts[0]?.status === 'ANSWERED';
-  }, [currentQuestion?.attempts]);
+    const isAnswered = currentQuestion.attempts[0]?.status === 'ANSWERED';
+    console.log('Current question answered status:', isAnswered);
+    return isAnswered;
+  }, [currentQuestion, currentQuestionIndex]);
 
   // Navigation functions - memoized for stability
   const navigation = useMemo(

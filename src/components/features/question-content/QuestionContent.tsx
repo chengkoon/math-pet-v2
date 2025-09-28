@@ -154,7 +154,7 @@ const QuestionContent = ({
             )}
           </div>
 
-          <Button
+          {/* <Button
             variant="ghost"
             size="sm"
             onClick={onFlagToggle}
@@ -162,7 +162,7 @@ const QuestionContent = ({
           >
             <Flag className="mr-1 h-4 w-4" />
             {questionStatus === 'ANSWERED' ? 'Flagged' : 'Flag'}
-          </Button>
+          </Button> */}
         </div>
         <Progress value={progress} className="mt-2 w-full" />
       </CardHeader>

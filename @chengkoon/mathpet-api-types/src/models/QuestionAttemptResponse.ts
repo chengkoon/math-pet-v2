@@ -44,6 +44,12 @@ export interface QuestionAttemptResponse {
      */
     parentQuestionPosition?: number;
     /**
+     * Array of working steps showing the student's work process (for problem sums)
+     * @type {Array<string>}
+     * @memberof QuestionAttemptResponse
+     */
+    studentWorkingSteps?: Array<string>;
+    /**
      * Student's answer
      * @type {string}
      * @memberof QuestionAttemptResponse
@@ -85,6 +91,12 @@ export interface QuestionAttemptResponse {
      * @memberof QuestionAttemptResponse
      */
     attemptedAt?: Date;
+    /**
+     * Detailed feedback from AI grading explaining the mark allocation and reasoning (for working steps questions)
+     * @type {string}
+     * @memberof QuestionAttemptResponse
+     */
+    feedback?: string;
 }
 
 
@@ -125,6 +137,7 @@ export function QuestionAttemptResponseFromJSONTyped(json: any, ignoreDiscrimina
         'questionId': json['questionId'],
         'questionIndex': json['questionIndex'],
         'parentQuestionPosition': json['parentQuestionPosition'] == null ? undefined : json['parentQuestionPosition'],
+        'studentWorkingSteps': json['studentWorkingSteps'] == null ? undefined : json['studentWorkingSteps'],
         'studentAnswer': json['studentAnswer'] == null ? undefined : json['studentAnswer'],
         'selectedOptionId': json['selectedOptionId'] == null ? undefined : json['selectedOptionId'],
         'status': json['status'],
@@ -132,6 +145,7 @@ export function QuestionAttemptResponseFromJSONTyped(json: any, ignoreDiscrimina
         'timeSpentSeconds': json['timeSpentSeconds'] == null ? undefined : json['timeSpentSeconds'],
         'attemptNumber': json['attemptNumber'] == null ? undefined : json['attemptNumber'],
         'attemptedAt': json['attemptedAt'] == null ? undefined : (new Date(json['attemptedAt'])),
+        'feedback': json['feedback'] == null ? undefined : json['feedback'],
     };
 }
 
@@ -150,6 +164,7 @@ export function QuestionAttemptResponseToJSONTyped(value?: QuestionAttemptRespon
         'questionId': value['questionId'],
         'questionIndex': value['questionIndex'],
         'parentQuestionPosition': value['parentQuestionPosition'],
+        'studentWorkingSteps': value['studentWorkingSteps'],
         'studentAnswer': value['studentAnswer'],
         'selectedOptionId': value['selectedOptionId'],
         'status': value['status'],
@@ -157,6 +172,7 @@ export function QuestionAttemptResponseToJSONTyped(value?: QuestionAttemptRespon
         'timeSpentSeconds': value['timeSpentSeconds'],
         'attemptNumber': value['attemptNumber'],
         'attemptedAt': value['attemptedAt'] == null ? undefined : ((value['attemptedAt']).toISOString()),
+        'feedback': value['feedback'],
     };
 }
 
