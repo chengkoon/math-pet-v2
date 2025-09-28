@@ -4,6 +4,7 @@ import type {
   StartPracticeSessionRequest,
   CheckQuestionAnswerRequest,
   UpdatePracticeSessionRequest,
+  PracticeQuestionResponse,
 } from '@chengkoon/mathpet-api-types';
 import { toast } from 'sonner';
 
@@ -117,18 +118,41 @@ export const useCheckQuestionAnswer = () => {
         toast.error('Incorrect. Keep trying! 💪');
       }
 
-      // Invalidate related queries to refresh isCurrentQuestionAnswered flag
+      // Optimistic update: Use the response data directly (no extra API call)
+      if (data.status === 'ANSWERED') {
+        queryClient.setQueryData(
+          [
+            'practice-session-question',
+            variables.sessionId,
+            variables.request.questionIndex,
+          ],
+          (oldData: PracticeQuestionResponse | undefined) => {
+            if (!oldData?.attempts) return oldData;
+
+            // Update the latest attempt with the response data
+            const updatedAttempts = [...oldData.attempts];
+            if (updatedAttempts[0]) {
+              updatedAttempts[0] = {
+                ...updatedAttempts[0],
+                status: data.status,
+                ...(data.isCorrect !== undefined && {
+                  isCorrect: data.isCorrect,
+                }),
+                // Add other fields from QuestionAttemptResponse if needed
+              };
+            }
+
+            return {
+              ...oldData,
+              attempts: updatedAttempts,
+            };
+          }
+        );
+      }
+
+      // Still invalidate session query for other state updates
       queryClient.invalidateQueries({
         queryKey: ['practice-session', variables.sessionId],
-      });
-
-      // Invalidate the specific question query to update isCurrentQuestionAnswered immediately
-      queryClient.invalidateQueries({
-        queryKey: [
-          'practice-session-question',
-          variables.sessionId,
-          variables.request.questionIndex,
-        ],
       });
     },
     onError: (error) => {
