@@ -110,6 +110,13 @@ export const useCheckQuestionAnswer = () => {
       request: CheckQuestionAnswerRequest;
     }) => practiceService.checkQuestionAnswer(sessionId, request),
     onSuccess: (data, variables) => {
+      // Show success/failure toast based on answer correctness
+      if (data.isCorrect) {
+        toast.success('Correct! Well done! 🎉');
+      } else {
+        toast.error('Incorrect. Keep trying! 💪');
+      }
+
       // Invalidate related queries
       queryClient.invalidateQueries({
         queryKey: ['practice-session', variables.sessionId],
