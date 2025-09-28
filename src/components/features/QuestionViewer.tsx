@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import { usePracticeSession } from '@/hooks/use-practice';
 import { useQuestionMutations } from '@/hooks/useQuestionMutations';
 import { useQuestionViewerState } from '@/hooks/useQuestionViewerState';
+import { useCurrentQuestionStatus } from '@/hooks/useCurrentQuestionStatus';
 import { withQuestionViewerErrorBoundary } from './QuestionViewerErrorBoundary';
 import QuestionContent from './question-content/QuestionContent';
 import QuestionNavigation from './question-navigation/QuestionNavigation';
@@ -49,13 +50,16 @@ function QuestionViewer({ sessionId, onComplete }: QuestionViewerProps) {
     questionStatuses,
     showMobilePalette,
     answeredCount,
-    isCurrentQuestionAnswered,
     navigation,
     answers,
     status,
     setQuestionStatuses, // Add this line to get the setState function
-  } = useQuestionViewerState({ session, sessionId });
-
+  } = useQuestionViewerState({ session });
+  const { currentQuestion, isCurrentQuestionAnswered } =
+    useCurrentQuestionStatus({
+      sessionId,
+      questionIndex: currentQuestionIndex,
+    });
   // ✅ ACCESSIBILITY: Keyboard navigation support
   // useKeyboardNavigation(
   //   currentQuestionIndex,
@@ -68,16 +72,16 @@ function QuestionViewer({ sessionId, onComplete }: QuestionViewerProps) {
 
   // ✅ ACCESSIBILITY: Announce question changes to screen readers
   useEffect(() => {
-    if (session?.currentQuestion?.question?.questionText) {
+    if (currentQuestion?.question?.questionText) {
       announceQuestionChange(
         currentQuestionIndex,
         session?.totalQuestions ?? 0,
-        session.currentQuestion.question.questionText
+        currentQuestion.question.questionText
       );
     }
   }, [
     currentQuestionIndex,
-    session?.currentQuestion?.question?.questionText,
+    currentQuestion?.question?.questionText,
     session?.totalQuestions,
   ]);
 
@@ -103,13 +107,13 @@ function QuestionViewer({ sessionId, onComplete }: QuestionViewerProps) {
       // Submit MCQ answer
       submitAnswer({
         optionIndex: currentMcqAnswer,
-        question: session?.currentQuestion,
+        question: currentQuestion,
       });
     } else if (currentShortAnswer?.trim()) {
       // Submit short answer
       submitAnswer({
         answerText: currentShortAnswer,
-        question: session?.currentQuestion,
+        question: currentQuestion,
       });
     } else {
       // No answer selected, show toast
@@ -211,7 +215,7 @@ function QuestionViewer({ sessionId, onComplete }: QuestionViewerProps) {
                 <QuestionContentSkeleton />
               ) : (
                 <QuestionContent
-                  question={session.currentQuestion}
+                  question={currentQuestion}
                   questionIndex={currentQuestionIndex}
                   totalQuestions={session.totalQuestions}
                   mcqAnswer={mcqAnswers[currentQuestionIndex]}
