@@ -25,6 +25,7 @@ interface QuestionContentProps {
   workingSteps: string[];
   questionStatus: QuestionAttemptResponseStatusEnum | undefined;
   isSubmittingAnswer: boolean;
+  isQuestionAnswered: boolean;
   onMcqAnswerChange: (optionIndex: number) => void;
   onShortAnswerChange: (answer: string) => void;
   onWorkingStepsChange: (steps: string[]) => void;
@@ -46,6 +47,7 @@ const QuestionContent = ({
   workingSteps,
   questionStatus,
   isSubmittingAnswer,
+  isQuestionAnswered,
   onMcqAnswerChange,
   onShortAnswerChange,
   onWorkingStepsChange,
@@ -77,6 +79,9 @@ const QuestionContent = ({
   // Handle MCQ selection with proper type safety - MUST be called unconditionally
   const handleMcqSelect = useCallback(
     (value: string) => {
+      // Don't allow changes if question is already answered
+      if (isQuestionAnswered) return;
+
       const optionIndex = parseInt(value, 10);
       if (
         !isNaN(optionIndex) &&
@@ -86,23 +91,29 @@ const QuestionContent = ({
         onMcqAnswerChange(optionIndex);
       }
     },
-    [onMcqAnswerChange, mcqOptions.length]
+    [onMcqAnswerChange, mcqOptions.length, isQuestionAnswered]
   );
 
   // Handle textarea change - MUST be called unconditionally
   const handleTextareaChange = useCallback(
     (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+      // Don't allow changes if question is already answered
+      if (isQuestionAnswered) return;
+
       onShortAnswerChange(e.target.value);
     },
-    [onShortAnswerChange]
+    [onShortAnswerChange, isQuestionAnswered]
   );
 
   // Handle working steps change - MUST be called unconditionally
   const handleWorkingStepsChange = useCallback(
     (steps: string[]) => {
+      // Don't allow changes if question is already answered
+      if (isQuestionAnswered) return;
+
       onWorkingStepsChange(steps);
     },
-    [onWorkingStepsChange]
+    [onWorkingStepsChange, isQuestionAnswered]
   );
 
   // Type safety checks - AFTER hooks are called
@@ -133,6 +144,14 @@ const QuestionContent = ({
               </Badge>
             )}
             {isMCQ && <Badge variant="outline">Multiple Choice</Badge>}
+            {isQuestionAnswered && (
+              <Badge
+                variant="default"
+                className="bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100"
+              >
+                ✓ Answered
+              </Badge>
+            )}
           </div>
 
           <Button
@@ -162,20 +181,26 @@ const QuestionContent = ({
             <RadioGroup
               value={mcqAnswer?.toString() ?? ''}
               onValueChange={handleMcqSelect}
+              disabled={isQuestionAnswered}
             >
               {mcqOptions.map((option, index) => (
                 <div
                   key={option.id ?? `option-${index}`}
-                  className="flex items-start space-x-3 rounded-lg border border-gray-200 p-4 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800"
+                  className={`flex items-start space-x-3 rounded-lg border p-4 transition-colors ${
+                    isQuestionAnswered
+                      ? 'dark:bg-gray-750 border-gray-300 bg-gray-50 opacity-75 dark:border-gray-600'
+                      : 'border-gray-200 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800'
+                  }`}
                 >
                   <RadioGroupItem
                     value={index.toString()}
                     id={`option-${index}`}
                     className="mt-1"
+                    disabled={isQuestionAnswered}
                   />
                   <Label
                     htmlFor={`option-${index}`}
-                    className="flex-1 cursor-pointer"
+                    className={`flex-1 ${isQuestionAnswered ? 'cursor-default' : 'cursor-pointer'}`}
                   >
                     <div className="flex items-center space-x-2">
                       <span className="font-medium text-gray-700 dark:text-gray-300">
@@ -208,22 +233,40 @@ const QuestionContent = ({
         {!isMCQ && (
           <div className="space-y-4">
             {/* Working Steps */}
-            <div className="rounded-lg border border-gray-300 bg-gray-50 p-4 dark:border-gray-600 dark:bg-gray-800">
+            <div
+              className={`rounded-lg border p-4 ${
+                isQuestionAnswered
+                  ? 'dark:bg-gray-750 border-gray-300 bg-gray-50 dark:border-gray-600'
+                  : 'border-gray-300 bg-gray-50 dark:border-gray-600 dark:bg-gray-800'
+              }`}
+            >
               <WorkingSteps
                 steps={workingSteps}
                 onChange={handleWorkingStepsChange}
-                disabled={isSubmittingAnswer}
+                disabled={isSubmittingAnswer || isQuestionAnswered}
               />
             </div>
-            <div className="rounded-lg border border-gray-300 bg-gray-50 p-4 dark:border-gray-600 dark:bg-gray-800">
+            <div
+              className={`rounded-lg border p-4 ${
+                isQuestionAnswered
+                  ? 'dark:bg-gray-750 border-gray-300 bg-gray-50 dark:border-gray-600'
+                  : 'border-gray-300 bg-gray-50 dark:border-gray-600 dark:bg-gray-800'
+              }`}
+            >
               <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Your Answer:
               </label>
               <Textarea
                 className="min-h-32 resize-none"
-                placeholder="Write your answer here..."
+                placeholder={
+                  isQuestionAnswered
+                    ? 'Already answered'
+                    : 'Write your answer here...'
+                }
                 value={shortAnswer}
                 onChange={handleTextareaChange}
+                disabled={isQuestionAnswered}
+                readOnly={isQuestionAnswered}
               />
             </div>
           </div>

@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import type { PracticeSessionResponse } from '@chengkoon/mathpet-api-types';
 import type { QuestionStatuses } from '@/components/features/question-palette/question-status-utils';
+import { usePracticeSessionQuestion } from '@/hooks/use-practice';
 
 // Type-safe interfaces
 interface McqAnswers {
@@ -19,6 +20,7 @@ interface WorkingSteps {
 
 interface UseQuestionViewerStateProps {
   session: PracticeSessionResponse | undefined;
+  sessionId: string;
 }
 
 interface UseQuestionViewerStateReturn {
@@ -32,6 +34,7 @@ interface UseQuestionViewerStateReturn {
 
   // Computed values
   answeredCount: number;
+  isCurrentQuestionAnswered: boolean;
 
   // State setters
   setQuestionStatuses: React.Dispatch<React.SetStateAction<QuestionStatuses>>;
@@ -65,7 +68,13 @@ interface UseQuestionViewerStateReturn {
  */
 export const useQuestionViewerState = ({
   session,
+  sessionId,
 }: UseQuestionViewerStateProps): UseQuestionViewerStateReturn => {
+  // Get current question data to check for previous attempts
+  const { data: currentQuestion } = usePracticeSessionQuestion(
+    sessionId,
+    session?.currentQuestionIndex ?? 0
+  );
   // Local state
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [mcqAnswers, setMcqAnswers] = useState<McqAnswers>({});
@@ -109,6 +118,43 @@ export const useQuestionViewerState = ({
     }
   }, [questionAttemptsKey, session]); // Include session dependency but use stable questionAttemptsKey
 
+  // Initialize previous answers when current question changes or loads
+  useEffect(() => {
+    if (currentQuestion?.attempts && currentQuestion.attempts.length > 0) {
+      const latestAttempt = currentQuestion.attempts[0]; // Get latest attempt
+      const questionIndex = currentQuestion.questionIndex ?? 0;
+
+      if (latestAttempt && latestAttempt.status === 'ANSWERED') {
+        // Initialize MCQ answer if available
+        if (latestAttempt.selectedOptionId !== undefined) {
+          // Find the option index that corresponds to the selectedOptionId
+          const mcqOptions = currentQuestion.components
+            ?.filter((component) => component.componentType === 'MCQ_OPTION')
+            .sort((a, b) => (a.componentOrder ?? 0) - (b.componentOrder ?? 0));
+
+          if (mcqOptions) {
+            const optionIndex = mcqOptions.findIndex(
+              (option) => option.id === latestAttempt.selectedOptionId
+            );
+            if (optionIndex >= 0) {
+              setMcqAnswers((prev) => ({
+                ...prev,
+                [questionIndex]: optionIndex,
+              }));
+            }
+          }
+        }
+        // Initialize short answer if available
+        else if (latestAttempt.studentAnswer) {
+          setShortAnswers((prev) => ({
+            ...prev,
+            [questionIndex]: latestAttempt.studentAnswer || '',
+          }));
+        }
+      }
+    }
+  }, [currentQuestion]);
+
   // Calculate answered count
   const answeredCount = useMemo(() => {
     const mcqCount = Object.keys(mcqAnswers).length;
@@ -117,6 +163,15 @@ export const useQuestionViewerState = ({
     ).length;
     return mcqCount + shortCount;
   }, [mcqAnswers, shortAnswers]);
+
+  // Check if current question is already answered
+  const isCurrentQuestionAnswered = useMemo(() => {
+    console.log('memoing isCurrentQuestionAnswered...');
+    if (!currentQuestion?.attempts || currentQuestion.attempts.length === 0) {
+      return false;
+    }
+    return currentQuestion.attempts[0]?.status === 'ANSWERED';
+  }, [currentQuestion?.attempts]);
 
   // Navigation functions - memoized for stability
   const navigation = useMemo(
@@ -246,6 +301,7 @@ export const useQuestionViewerState = ({
 
     // Computed values
     answeredCount,
+    isCurrentQuestionAnswered,
 
     // State setters
     setQuestionStatuses,

@@ -52,11 +52,12 @@ function QuestionViewer({ sessionId, onComplete }: QuestionViewerProps) {
     questionStatuses,
     showMobilePalette,
     answeredCount,
+    isCurrentQuestionAnswered,
     navigation,
     answers,
     status,
     setQuestionStatuses, // Add this line to get the setState function
-  } = useQuestionViewerState({ session });
+  } = useQuestionViewerState({ session, sessionId });
 
   const { data: currentQuestion, isLoading: questionLoading } =
     usePracticeSessionQuestion(sessionId, currentQuestionIndex);
@@ -224,6 +225,7 @@ function QuestionViewer({ sessionId, onComplete }: QuestionViewerProps) {
                   workingSteps={workingSteps[currentQuestionIndex] || []}
                   questionStatus={questionStatuses[currentQuestionIndex]}
                   isSubmittingAnswer={isSubmittingAnswer}
+                  isQuestionAnswered={isCurrentQuestionAnswered}
                   onMcqAnswerChange={handleMcqAnswerChange}
                   onShortAnswerChange={(answer) =>
                     answers.updateShortAnswer(currentQuestionIndex, answer)
