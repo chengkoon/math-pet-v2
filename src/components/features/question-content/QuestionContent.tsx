@@ -78,20 +78,12 @@ const QuestionContent = ({
 
   // Handle MCQ selection with proper type safety - MUST be called unconditionally
   const handleMcqSelect = useCallback(
-    (value: string) => {
+    (optionId: string) => {
       // Don't allow changes if question is already answered
       if (isQuestionAnswered) return;
-
-      const optionIndex = parseInt(value, 10);
-      if (
-        !isNaN(optionIndex) &&
-        optionIndex >= 0 &&
-        optionIndex < mcqOptions.length
-      ) {
-        onMcqAnswerChange(optionIndex);
-      }
+      onMcqAnswerChange(+optionId);
     },
-    [onMcqAnswerChange, mcqOptions.length, isQuestionAnswered]
+    [onMcqAnswerChange, isQuestionAnswered]
   );
 
   // Handle textarea change - MUST be called unconditionally
@@ -183,48 +175,55 @@ const QuestionContent = ({
               onValueChange={handleMcqSelect}
               disabled={isQuestionAnswered}
             >
-              {mcqOptions.map((option, index) => (
-                <div
-                  key={option.id ?? `option-${index}`}
-                  className={`flex items-start space-x-3 rounded-lg border p-4 transition-colors ${
-                    isQuestionAnswered
-                      ? 'dark:bg-gray-750 border-gray-300 bg-gray-50 opacity-75 dark:border-gray-600'
-                      : 'border-gray-200 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800'
-                  }`}
-                >
-                  <RadioGroupItem
-                    value={index.toString()}
-                    id={`option-${index}`}
-                    className="mt-1"
-                    disabled={isQuestionAnswered}
-                  />
-                  <Label
-                    htmlFor={`option-${index}`}
-                    className={`flex-1 ${isQuestionAnswered ? 'cursor-default' : 'cursor-pointer'}`}
+              {mcqOptions.map((option, index) => {
+                console.log('Rendering option:', option, 'at index:', index);
+                if (!option.id) {
+                  return null;
+                }
+                return (
+                  <div
+                    key={option.id ?? `option-${index}`}
+                    className={`flex items-start space-x-3 rounded-lg border p-4 transition-colors ${
+                      isQuestionAnswered
+                        ? 'dark:bg-gray-750 border-gray-300 bg-gray-50 opacity-75 dark:border-gray-600'
+                        : 'border-gray-200 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800'
+                    }`}
                   >
-                    <div className="flex items-center space-x-2">
-                      <span className="font-medium text-gray-700 dark:text-gray-300">
-                        ({option.componentOrder ?? index + 1})
-                      </span>
-                      <div className="text-gray-900 dark:text-white">
-                        {option.isImageOption && option.imageUrl ? (
-                          <Image
-                            src={option.imageUrl}
-                            alt={`Option ${option.componentOrder ?? index + 1}`}
-                            width={200}
-                            height={128}
-                            className="max-h-32 object-contain"
-                          />
-                        ) : (
-                          <span>
-                            {option.contentText ?? 'Option text not available'}
-                          </span>
-                        )}
+                    <RadioGroupItem
+                      value={option.id?.toString()}
+                      id={`option-${index}`}
+                      className="mt-1"
+                      disabled={isQuestionAnswered}
+                    />
+                    <Label
+                      htmlFor={`option-${index}`}
+                      className={`flex-1 ${isQuestionAnswered ? 'cursor-default' : 'cursor-pointer'}`}
+                    >
+                      <div className="flex items-center space-x-2">
+                        <span className="font-medium text-gray-700 dark:text-gray-300">
+                          ({option.componentOrder ?? index + 1})
+                        </span>
+                        <div className="text-gray-900 dark:text-white">
+                          {option.isImageOption && option.imageUrl ? (
+                            <Image
+                              src={option.imageUrl}
+                              alt={`Option ${option.componentOrder ?? index + 1}`}
+                              width={200}
+                              height={128}
+                              className="max-h-32 object-contain"
+                            />
+                          ) : (
+                            <span>
+                              {option.contentText ??
+                                'Option text not available'}
+                            </span>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  </Label>
-                </div>
-              ))}
+                    </Label>
+                  </div>
+                );
+              })}
             </RadioGroup>
           </div>
         )}

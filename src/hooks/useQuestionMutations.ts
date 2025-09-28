@@ -17,7 +17,7 @@ interface UseQuestionMutationsProps {
 interface SubmitAnswerParams {
   question?: PracticeQuestionResponse | undefined;
   answerText?: string | undefined;
-  optionIndex?: number | undefined;
+  optionId?: number;
 }
 
 interface UseQuestionMutationsReturn {
@@ -38,12 +38,12 @@ export const useQuestionMutations = ({
   const checkQuestionAnswerMutation = useCheckQuestionAnswer();
 
   const submitAnswer = useCallback(
-    ({ question, answerText, optionIndex }: SubmitAnswerParams) => {
-      // Validate that we have either answerText or optionIndex
+    ({ question, answerText, optionId }: SubmitAnswerParams) => {
+      // Validate that we have either answerText or optionId
       if (currentQuestionIndex === undefined) {
         return;
       }
-      if (!answerText && optionIndex === undefined) {
+      if (!answerText && optionId === undefined) {
         toast.error('Please provide an answer before submitting.');
         return;
       }
@@ -64,23 +64,12 @@ export const useQuestionMutations = ({
       }
 
       let studentAnswer: string;
-      let selectedOptionId: number | undefined;
 
       // Handle MCQ submission
-      if (optionIndex !== undefined) {
-        if (!question.components || !question.components[optionIndex]) {
-          toast.error('Invalid option selected. Please try again.');
-          return;
-        }
-
-        const selectedOption = question.components[optionIndex];
-        if (!selectedOption?.id) {
-          toast.error('Invalid option selected. Please try again.');
-          return;
-        }
-
-        studentAnswer = selectedOption.contentText || '';
-        selectedOptionId = selectedOption.id;
+      if (optionId !== undefined) {
+        studentAnswer =
+          question.components?.filter(({ id }) => id === optionId)[0]
+            ?.contentText || '';
       }
       // Handle short answer submission
       else if (answerText) {
@@ -109,7 +98,7 @@ export const useQuestionMutations = ({
         studentAnswer,
         timeSpentSeconds: 0, // TODO: Track actual time spent
         action: 'ANSWER' as const,
-        ...(selectedOptionId && { selectedOptionId }),
+        ...(optionId && { selectedOptionId: optionId }),
         ...(validWorkingSteps.length > 0 && {
           studentWorkingSteps: validWorkingSteps,
         }),

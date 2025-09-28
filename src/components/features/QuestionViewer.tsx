@@ -119,7 +119,7 @@ function QuestionViewer({ sessionId, onComplete }: QuestionViewerProps) {
     if (currentMcqAnswer !== undefined) {
       // Submit MCQ answer
       submitAnswer({
-        optionIndex: currentMcqAnswer,
+        optionId: currentMcqAnswer,
         question: currentQuestion,
       });
     } else if (currentShortAnswer?.trim()) {
