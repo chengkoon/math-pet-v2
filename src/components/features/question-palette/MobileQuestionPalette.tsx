@@ -1,20 +1,22 @@
 'use client';
 
-import { useCallback, useEffect, useRef, memo } from 'react';
+import { useCallback, useEffect, useRef, memo, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { X } from 'lucide-react';
 import type { PracticeSessionResponse } from '@chengkoon/mathpet-api-types';
 import {
-  getQuestionStatusIconByIndex,
-  getQuestionStatusColorByIndex,
-  getQuestionAccessibilityLabelByIndex,
+  getEnhancedQuestionStatusIconByIndex,
+  getEnhancedQuestionStatusColorByIndex,
+  getEnhancedQuestionAccessibilityLabelByIndex,
   type QuestionStatuses,
+  type EnhancedQuestionStatuses,
 } from './question-status-utils';
 
 interface MobileQuestionPaletteProps {
   session: PracticeSessionResponse;
   currentQuestionIndex: number;
-  questionStatuses: QuestionStatuses;
+  questionStatuses: QuestionStatuses; // Keep for backward compatibility
+  enhancedQuestionStatuses?: EnhancedQuestionStatuses; // New enhanced version
   answeredCount: number;
   isOpen: boolean;
   onClose: () => void;
@@ -30,7 +32,8 @@ interface MobileQuestionPaletteProps {
 const MobileQuestionPalette = ({
   session,
   currentQuestionIndex,
-  questionStatuses,
+  questionStatuses, // eslint-disable-line @typescript-eslint/no-unused-vars -- kept for backward compatibility
+  enhancedQuestionStatuses,
   answeredCount,
   isOpen,
   onClose,
@@ -40,6 +43,40 @@ const MobileQuestionPalette = ({
   // Refs for focus management
   const modalRef = useRef<HTMLDivElement>(null);
   const firstFocusableRef = useRef<HTMLButtonElement>(null);
+
+  // ✅ ENHANCED: Create enhanced question statuses with correctness info
+  const computedEnhancedQuestionStatuses =
+    useMemo((): EnhancedQuestionStatuses => {
+      if (enhancedQuestionStatuses) {
+        return enhancedQuestionStatuses;
+      }
+
+      // Create enhanced statuses from session.questionAttempts
+      const enhanced: EnhancedQuestionStatuses = {};
+
+      Array.from({ length: session.totalQuestions }, (_, index) => {
+        // Find the attempt for this question index
+        const attempt = session.questionAttempts.find(
+          (attempt) => attempt.questionIndex === index
+        );
+
+        enhanced[index] = {
+          index,
+          ...(attempt?.status && { status: attempt.status }),
+          ...(attempt?.isCorrect !== undefined && {
+            isCorrect: attempt.isCorrect,
+          }),
+        };
+
+        return index;
+      });
+
+      return enhanced;
+    }, [
+      session.questionAttempts,
+      session.totalQuestions,
+      enhancedQuestionStatuses,
+    ]);
 
   // Handle question navigation and close modal
   const handleQuestionClick = useCallback(
@@ -181,19 +218,25 @@ const MobileQuestionPalette = ({
                   onClick={() => handleQuestionClick(index)}
                   className={`relative h-12 w-12 touch-manipulation p-0 ${
                     index !== currentQuestionIndex
-                      ? getQuestionStatusColorByIndex(index, questionStatuses)
+                      ? getEnhancedQuestionStatusColorByIndex(
+                          index,
+                          computedEnhancedQuestionStatuses
+                        )
                       : ''
                   }`}
-                  aria-label={getQuestionAccessibilityLabelByIndex(
+                  aria-label={getEnhancedQuestionAccessibilityLabelByIndex(
                     index,
-                    questionStatuses,
+                    computedEnhancedQuestionStatuses,
                     currentQuestionIndex
                   )}
                 >
                   <span className="text-sm font-medium">{index + 1}</span>
                   {index !== currentQuestionIndex && (
                     <div className="absolute -top-1 -right-1">
-                      {getQuestionStatusIconByIndex(index, questionStatuses)}
+                      {getEnhancedQuestionStatusIconByIndex(
+                        index,
+                        computedEnhancedQuestionStatuses
+                      )}
                     </div>
                   )}
                 </Button>
@@ -205,13 +248,13 @@ const MobileQuestionPalette = ({
               <div className="flex items-center space-x-2">
                 <div className="h-3 w-3 rounded border border-green-300 bg-green-100"></div>
                 <span className="text-gray-600 dark:text-gray-400">
-                  Answered
+                  Correct
                 </span>
               </div>
               <div className="flex items-center space-x-2">
-                <div className="h-3 w-3 rounded border border-orange-300 bg-orange-100"></div>
+                <div className="h-3 w-3 rounded border border-red-300 bg-red-100"></div>
                 <span className="text-gray-600 dark:text-gray-400">
-                  Flagged
+                  Incorrect
                 </span>
               </div>
               <div className="flex items-center space-x-2">

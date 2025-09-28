@@ -4,10 +4,7 @@ import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
-import {
-  usePracticeSession,
-  usePracticeSessionQuestion,
-} from '@/hooks/use-practice';
+import { usePracticeSession } from '@/hooks/use-practice';
 import { useQuestionMutations } from '@/hooks/useQuestionMutations';
 import { useQuestionViewerState } from '@/hooks/useQuestionViewerState';
 import { withQuestionViewerErrorBoundary } from './QuestionViewerErrorBoundary';
@@ -59,31 +56,28 @@ function QuestionViewer({ sessionId, onComplete }: QuestionViewerProps) {
     setQuestionStatuses, // Add this line to get the setState function
   } = useQuestionViewerState({ session, sessionId });
 
-  const { data: currentQuestion, isLoading: questionLoading } =
-    usePracticeSessionQuestion(sessionId, currentQuestionIndex);
-
   // ✅ ACCESSIBILITY: Keyboard navigation support
-  useKeyboardNavigation(
-    currentQuestionIndex,
-    session?.totalQuestions ?? 0,
-    navigation.goToQuestion,
-    navigation.nextQuestion,
-    navigation.previousQuestion,
-    true // Always enabled for accessibility
-  );
+  // useKeyboardNavigation(
+  //   currentQuestionIndex,
+  //   session?.totalQuestions ?? 0,
+  //   navigation.goToQuestion,
+  //   navigation.nextQuestion,
+  //   navigation.previousQuestion,
+  //   true // Always enabled for accessibility
+  // );
 
   // ✅ ACCESSIBILITY: Announce question changes to screen readers
   useEffect(() => {
-    if (currentQuestion?.question?.questionText) {
+    if (session?.currentQuestion?.question?.questionText) {
       announceQuestionChange(
         currentQuestionIndex,
         session?.totalQuestions ?? 0,
-        currentQuestion.question.questionText
+        session.currentQuestion.question.questionText
       );
     }
   }, [
     currentQuestionIndex,
-    currentQuestion?.question?.questionText,
+    session?.currentQuestion?.question?.questionText,
     session?.totalQuestions,
   ]);
 
@@ -109,13 +103,13 @@ function QuestionViewer({ sessionId, onComplete }: QuestionViewerProps) {
       // Submit MCQ answer
       submitAnswer({
         optionIndex: currentMcqAnswer,
-        question: currentQuestion,
+        question: session?.currentQuestion,
       });
     } else if (currentShortAnswer?.trim()) {
       // Submit short answer
       submitAnswer({
         answerText: currentShortAnswer,
-        question: currentQuestion,
+        question: session?.currentQuestion,
       });
     } else {
       // No answer selected, show toast
@@ -213,11 +207,11 @@ function QuestionViewer({ sessionId, onComplete }: QuestionViewerProps) {
               role="main"
               aria-label="Question content"
             >
-              {questionLoading ? (
+              {!session || !session.currentQuestion ? (
                 <QuestionContentSkeleton />
               ) : (
                 <QuestionContent
-                  question={currentQuestion}
+                  question={session.currentQuestion}
                   questionIndex={currentQuestionIndex}
                   totalQuestions={session.totalQuestions}
                   mcqAnswer={mcqAnswers[currentQuestionIndex]}

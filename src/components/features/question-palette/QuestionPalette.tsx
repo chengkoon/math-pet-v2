@@ -7,15 +7,17 @@ import { Separator } from '@/components/ui/separator';
 import { Clock } from 'lucide-react';
 import type { PracticeSessionResponse } from '@chengkoon/mathpet-api-types';
 import {
-  getQuestionStatusIconByIndex,
-  getQuestionStatusColorByIndex,
+  getEnhancedQuestionStatusIconByIndex,
+  getEnhancedQuestionStatusColorByIndex,
   type QuestionStatuses,
+  type EnhancedQuestionStatuses,
 } from './question-status-utils';
 
 interface QuestionPaletteProps {
   session: PracticeSessionResponse;
   currentQuestionIndex: number;
-  questionStatuses: QuestionStatuses;
+  questionStatuses: QuestionStatuses; // Keep for backward compatibility
+  enhancedQuestionStatuses?: EnhancedQuestionStatuses; // New enhanced version
   onNavigateToQuestion: (questionIndex: number) => void;
   onCompleteSession: () => void;
 }
@@ -29,7 +31,8 @@ interface QuestionPaletteProps {
 const QuestionPalette = ({
   session,
   currentQuestionIndex,
-  questionStatuses,
+  questionStatuses, // eslint-disable-line @typescript-eslint/no-unused-vars -- kept for backward compatibility
+  enhancedQuestionStatuses,
   onNavigateToQuestion,
   onCompleteSession,
 }: QuestionPaletteProps) => {
@@ -37,6 +40,34 @@ const QuestionPalette = ({
   const questionIndices = useMemo(() => {
     return Array.from({ length: session.totalQuestions }, (_, index) => index);
   }, [session.totalQuestions]);
+
+  // ✅ ENHANCED: Create enhanced question statuses with correctness info
+  const computedEnhancedQuestionStatuses =
+    useMemo((): EnhancedQuestionStatuses => {
+      if (enhancedQuestionStatuses) {
+        return enhancedQuestionStatuses;
+      }
+
+      // Create enhanced statuses from session.questionAttempts
+      const enhanced: EnhancedQuestionStatuses = {};
+
+      questionIndices.forEach((index) => {
+        // Find the attempt for this question index
+        const attempt = session.questionAttempts.find(
+          (attempt) => attempt.questionIndex === index
+        );
+
+        enhanced[index] = {
+          index,
+          ...(attempt?.status && { status: attempt.status }),
+          ...(attempt?.isCorrect !== undefined && {
+            isCorrect: attempt.isCorrect,
+          }),
+        };
+      });
+
+      return enhanced;
+    }, [session.questionAttempts, questionIndices, enhancedQuestionStatuses]);
   // Format time display helper
   const formatTime = useCallback((seconds: number): string => {
     const hours = Math.floor(seconds / 3600);
@@ -106,14 +137,20 @@ const QuestionPalette = ({
               onClick={() => handleQuestionClick(index)}
               className={`relative h-10 w-10 p-0 ${
                 index !== currentQuestionIndex
-                  ? getQuestionStatusColorByIndex(index, questionStatuses)
+                  ? getEnhancedQuestionStatusColorByIndex(
+                      index,
+                      computedEnhancedQuestionStatuses
+                    )
                   : ''
               }`}
             >
               <span className="text-xs font-medium">{index + 1}</span>
               {index !== currentQuestionIndex && (
                 <div className="absolute -top-1 -right-1">
-                  {getQuestionStatusIconByIndex(index, questionStatuses)}
+                  {getEnhancedQuestionStatusIconByIndex(
+                    index,
+                    computedEnhancedQuestionStatuses
+                  )}
                 </div>
               )}
             </Button>
@@ -124,7 +161,11 @@ const QuestionPalette = ({
         <div className="mt-6 space-y-2 text-xs">
           <div className="flex items-center space-x-2">
             <div className="h-3 w-3 rounded border border-green-300 bg-green-100"></div>
-            <span className="text-gray-600 dark:text-gray-400">Answered</span>
+            <span className="text-gray-600 dark:text-gray-400">Correct</span>
+          </div>
+          <div className="flex items-center space-x-2">
+            <div className="h-3 w-3 rounded border border-red-300 bg-red-100"></div>
+            <span className="text-gray-600 dark:text-gray-400">Incorrect</span>
           </div>
           <div className="flex items-center space-x-2">
             <div className="h-3 w-3 rounded border border-orange-300 bg-orange-100"></div>

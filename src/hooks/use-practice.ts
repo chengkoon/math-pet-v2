@@ -45,13 +45,20 @@ export const usePracticeSession = (sessionId: string) => {
  */
 export const usePracticeSessionQuestion = (
   sessionId: string,
-  questionIndex: number
+  questionIndex?: number
 ) => {
   return useQuery({
     queryKey: ['practice-session-question', sessionId, questionIndex],
-    queryFn: () =>
-      practiceService.getPracticeSessionQuestion(sessionId, questionIndex),
-    enabled: !!sessionId && questionIndex >= 0,
+    queryFn: () => {
+      if (questionIndex === undefined) {
+        throw new Error('Question index is required');
+      }
+      return practiceService.getPracticeSessionQuestion(
+        sessionId,
+        questionIndex
+      );
+    },
+    enabled: !!sessionId && questionIndex !== undefined && questionIndex >= 0,
   });
 };
 

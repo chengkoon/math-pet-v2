@@ -71,7 +71,7 @@ export const useQuestionViewerState = ({
   sessionId,
 }: UseQuestionViewerStateProps): UseQuestionViewerStateReturn => {
   // Local state
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(undefined);
   const [mcqAnswers, setMcqAnswers] = useState<McqAnswers>({});
   const [shortAnswers, setShortAnswers] = useState<ShortAnswers>({});
   const [workingSteps, setWorkingSteps] = useState<WorkingSteps>({});
