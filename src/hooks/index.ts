@@ -7,8 +7,7 @@ export * from './use-pack-structure';
 
 // Question viewer state hooks
 export { useQuestionViewerState } from './useQuestionViewerState';
-export { useCurrentQuestionStatus } from './useCurrentQuestionStatus';
-export { useQuestionAnswerInitializer } from './useQuestionAnswerInitializer';
+// export { useQuestionAnswerInitializer } from './useQuestionAnswerInitializer';
 
 // Export types
 export type { UseQuestionViewerStateReturn } from './useQuestionViewerState';

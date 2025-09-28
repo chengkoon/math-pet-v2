@@ -31,11 +31,11 @@ export const getQuestionAriaLabel = (
 
 // Announce question changes to screen readers
 export const announceQuestionChange = (
-  questionIndex: number,
+  questionIndex: number | undefined,
   totalQuestions: number,
   questionText?: string
 ): void => {
-  const announcement = `Question ${questionIndex + 1} of ${totalQuestions}. ${
+  const announcement = `Question ${questionIndex !== undefined ? questionIndex + 1 : 0} of ${totalQuestions}. ${
     questionText
       ? `Question text: ${questionText.substring(0, 100)}${questionText.length > 100 ? '...' : ''}`
       : ''

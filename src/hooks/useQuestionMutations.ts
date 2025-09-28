@@ -9,7 +9,7 @@ import { toast } from 'sonner';
 
 interface UseQuestionMutationsProps {
   sessionId: string;
-  currentQuestionIndex: number;
+  currentQuestionIndex: number | undefined;
   setQuestionStatuses: React.Dispatch<React.SetStateAction<QuestionStatuses>>;
   workingSteps: string[]; // Working steps for current question
 }
@@ -40,6 +40,9 @@ export const useQuestionMutations = ({
   const submitAnswer = useCallback(
     ({ question, answerText, optionIndex }: SubmitAnswerParams) => {
       // Validate that we have either answerText or optionIndex
+      if (currentQuestionIndex === undefined) {
+        return;
+      }
       if (!answerText && optionIndex === undefined) {
         toast.error('Please provide an answer before submitting.');
         return;

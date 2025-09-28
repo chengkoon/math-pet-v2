@@ -23,7 +23,7 @@ interface UseQuestionViewerStateProps {
 
 interface UseQuestionViewerStateReturn {
   // Current state
-  currentQuestionIndex: number | undefined;
+  currentQuestionIndex: number | undefined; // undefined only during initial load
   mcqAnswers: McqAnswers;
   shortAnswers: ShortAnswers;
   workingSteps: WorkingSteps;
@@ -32,6 +32,9 @@ interface UseQuestionViewerStateReturn {
 
   // Computed values
   answeredCount: number;
+
+  // Loading states
+  isInitializing: boolean; // true when currentQuestionIndex is undefined
 
   // State setters
   setQuestionStatuses: React.Dispatch<React.SetStateAction<QuestionStatuses>>;
@@ -93,10 +96,13 @@ export const useQuestionViewerState = ({
 
   // Update current question index when session changes
   useEffect(() => {
-    if (session?.currentQuestionIndex !== undefined) {
-      setCurrentQuestionIndex(session.currentQuestionIndex);
+    if (session) {
+      // If session has a currentQuestionIndex, use it (resuming session)
+      // Otherwise, start from question 0 (new session)
+      const questionIndex = session.currentQuestionIndex ?? 0;
+      setCurrentQuestionIndex(questionIndex);
     }
-  }, [session?.currentQuestionIndex]);
+  }, [session]); // Watch entire session object for changes
 
   // Initialize question statuses from session attempts
   useEffect(() => {
@@ -254,6 +260,9 @@ export const useQuestionViewerState = ({
 
     // Computed values
     answeredCount,
+
+    // Loading states
+    isInitializing: currentQuestionIndex === undefined,
 
     // State setters
     setQuestionStatuses,

@@ -1,13 +1,14 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 import { usePracticeSession } from '@/hooks/use-practice';
 import { useQuestionMutations } from '@/hooks/useQuestionMutations';
 import { useQuestionViewerState } from '@/hooks/useQuestionViewerState';
-import { useCurrentQuestionStatus } from '@/hooks/useCurrentQuestionStatus';
+import { usePracticeSessionQuestion } from '@/hooks/use-practice';
+import { isQuestionAnswered } from '@/lib/utils/question-status';
 import { withQuestionViewerErrorBoundary } from './QuestionViewerErrorBoundary';
 import QuestionContent from './question-content/QuestionContent';
 import QuestionNavigation from './question-navigation/QuestionNavigation';
@@ -55,11 +56,14 @@ function QuestionViewer({ sessionId, onComplete }: QuestionViewerProps) {
     status,
     setQuestionStatuses, // Add this line to get the setState function
   } = useQuestionViewerState({ session });
-  const { currentQuestion, isCurrentQuestionAnswered } =
-    useCurrentQuestionStatus({
-      sessionId,
-      questionIndex: currentQuestionIndex,
-    });
+  const { data: currentQuestion } = usePracticeSessionQuestion(
+    sessionId,
+    currentQuestionIndex
+  );
+  const isCurrentQuestionAnswered = useMemo(
+    () => isQuestionAnswered(currentQuestion),
+    [currentQuestion]
+  );
   // ✅ ACCESSIBILITY: Keyboard navigation support
   // useKeyboardNavigation(
   //   currentQuestionIndex,
@@ -89,17 +93,26 @@ function QuestionViewer({ sessionId, onComplete }: QuestionViewerProps) {
   const { submitAnswer, isSubmittingAnswer } = useQuestionMutations({
     sessionId,
     currentQuestionIndex,
-    workingSteps: workingSteps[currentQuestionIndex] || [],
+    workingSteps:
+      currentQuestionIndex !== undefined
+        ? workingSteps[currentQuestionIndex] || []
+        : [],
     setQuestionStatuses,
   });
 
   // Handle MCQ answer selection (without submission)
   const handleMcqAnswerChange = (optionIndex: number) => {
+    if (currentQuestionIndex === undefined) {
+      return;
+    }
     answers.updateMcqAnswer(currentQuestionIndex, optionIndex);
   };
 
   // Handle check answer - submit the currently selected answer
   const handleCheckAnswer = () => {
+    if (currentQuestionIndex === undefined || !currentQuestion) {
+      return;
+    }
     const currentMcqAnswer = mcqAnswers[currentQuestionIndex];
     const currentShortAnswer = shortAnswers[currentQuestionIndex];
 
@@ -123,6 +136,9 @@ function QuestionViewer({ sessionId, onComplete }: QuestionViewerProps) {
 
   // Handle flag toggle
   const handleFlagToggle = () => {
+    if (currentQuestionIndex === undefined) {
+      return;
+    }
     status.toggleFlag(currentQuestionIndex);
   };
 
@@ -155,6 +171,10 @@ function QuestionViewer({ sessionId, onComplete }: QuestionViewerProps) {
         </div>
       </div>
     );
+  }
+
+  if (currentQuestionIndex === undefined) {
+    return <QuestionViewerSkeleton />;
   }
 
   return (
