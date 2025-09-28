@@ -6,7 +6,6 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Clock } from 'lucide-react';
 import type { PracticeSessionResponse } from '@chengkoon/mathpet-api-types';
-import VirtualQuestionGrid from './VirtualQuestionGrid';
 import {
   getQuestionStatusIconByIndex,
   getQuestionStatusColorByIndex,
@@ -97,42 +96,29 @@ const QuestionPalette = ({
 
         <Separator className="my-4" />
 
-        {/* Question Grid - PERFORMANCE OPTIMIZED */}
-        {session.totalQuestions > 50 ? (
-          // ✅ CRITICAL: Use virtual scrolling for large question sets
-          <VirtualQuestionGrid
-            totalQuestions={session.totalQuestions}
-            currentQuestionIndex={currentQuestionIndex}
-            questionStatuses={questionStatuses}
-            onNavigateToQuestion={handleQuestionClick}
-            containerHeight={300}
-            cols={5}
-          />
-        ) : (
-          // ✅ Use standard grid for smaller sets
-          <div className="grid grid-cols-5 gap-2">
-            {questionIndices.map((index) => (
-              <Button
-                key={index}
-                variant={index === currentQuestionIndex ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => handleQuestionClick(index)}
-                className={`relative h-10 w-10 p-0 ${
-                  index !== currentQuestionIndex
-                    ? getQuestionStatusColorByIndex(index, questionStatuses)
-                    : ''
-                }`}
-              >
-                <span className="text-xs font-medium">{index + 1}</span>
-                {index !== currentQuestionIndex && (
-                  <div className="absolute -top-1 -right-1">
-                    {getQuestionStatusIconByIndex(index, questionStatuses)}
-                  </div>
-                )}
-              </Button>
-            ))}
-          </div>
-        )}
+        {/* Question Grid */}
+        <div className="grid grid-cols-5 gap-2">
+          {questionIndices.map((index) => (
+            <Button
+              key={index}
+              variant={index === currentQuestionIndex ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => handleQuestionClick(index)}
+              className={`relative h-10 w-10 p-0 ${
+                index !== currentQuestionIndex
+                  ? getQuestionStatusColorByIndex(index, questionStatuses)
+                  : ''
+              }`}
+            >
+              <span className="text-xs font-medium">{index + 1}</span>
+              {index !== currentQuestionIndex && (
+                <div className="absolute -top-1 -right-1">
+                  {getQuestionStatusIconByIndex(index, questionStatuses)}
+                </div>
+              )}
+            </Button>
+          ))}
+        </div>
 
         {/* Legend */}
         <div className="mt-6 space-y-2 text-xs">
