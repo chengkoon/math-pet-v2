@@ -117,9 +117,18 @@ export const useCheckQuestionAnswer = () => {
         toast.error('Incorrect. Keep trying! 💪');
       }
 
-      // Invalidate related queries
+      // Invalidate related queries to refresh isCurrentQuestionAnswered flag
       queryClient.invalidateQueries({
         queryKey: ['practice-session', variables.sessionId],
+      });
+
+      // Invalidate the specific question query to update isCurrentQuestionAnswered immediately
+      queryClient.invalidateQueries({
+        queryKey: [
+          'practice-session-question',
+          variables.sessionId,
+          variables.request.questionIndex,
+        ],
       });
     },
     onError: (error) => {
