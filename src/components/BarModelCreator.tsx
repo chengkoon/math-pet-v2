@@ -76,7 +76,7 @@ const BarModelCreator = () => {
     const startX = 100;
     const startY = 80;
     const barHeight = 50;
-    const barSpacing = 20;
+    const barSpacing = 32;
     const scale = 0.5;
 
     const elements = [];
@@ -252,23 +252,32 @@ const BarModelCreator = () => {
       const bracketEndY =
         startY + (model.bars.length - 1) * (barHeight + barSpacing) + barHeight;
       const bracketHeight = bracketEndY - bracketStartY;
+      const midY = (bracketStartY + bracketEndY) / 2;
 
-      // Bracket lines
+      // Curly bracket with sharp tip in middle
       elements.push(
         <Line
           key="bracket"
           points={[
             bracketX,
-            bracketStartY,
-            bracketX + 15,
-            bracketStartY,
-            bracketX + 15,
-            bracketEndY,
+            bracketStartY, // Top point
+            bracketX + 8,
+            bracketStartY + 10, // Top curve out
+            bracketX + 8,
+            midY - 12, // Upper section (closer to tip)
+            bracketX + 16,
+            midY, // Middle tip (sharper, extends more)
+            bracketX + 8,
+            midY + 12, // Lower section (closer to tip)
+            bracketX + 8,
+            bracketEndY - 10, // Bottom curve out
             bracketX,
-            bracketEndY,
+            bracketEndY, // Bottom point
           ]}
           stroke="#dc2626"
           strokeWidth={2}
+          tension={0.2}
+          bezier
         />
       );
 
